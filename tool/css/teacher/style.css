@@ -1,0 +1,261 @@
+/*==========================================================
+Å@ [èâä˙âª]
+==========================================================*/
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td
+	{
+	margin: 0;
+	padding: 0;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+fieldset,img {
+	border: 0;
+}
+
+address,caption,cite,code,dfn,em,strong,th,var,optgroup {
+	font-style: inherit;
+	font-weight: inherit;
+}
+
+del,ins {
+	text-decoration: none;
+}
+
+li {
+	list-style: none;
+}
+
+caption,th {
+	text-align: left;
+}
+
+h1,h2,h3,h4,h5,h6 {
+	font-size: 100%;
+	font-weight: normal;
+}
+
+q:before,q:after {
+	content: '';
+}
+
+abbr,acronym {
+	border: 0;
+	font-variant: normal;
+}
+
+sup {
+	vertical-align: baseline;
+}
+
+sub {
+	vertical-align: baseline;
+}
+
+legend {
+	color: #000;
+}
+
+input,button,textarea,select,optgroup,option {
+	font-family: inherit;
+	font-size: inherit;
+	font-style: inherit;
+	font-weight: inherit;
+}
+
+input,button,textarea,select {
+	*font-size: 100%;
+}
+
+/*==========================================================
+Å@ [äÓñ{CSSê›íË]
+==========================================================*/
+body {
+	font-family: 'ÉÅÉCÉäÉI', Meiryo, Verdana, Arial, 'ÉqÉâÉMÉmäpÉS Pro W3',
+		'Hiragino Kaku Gothic Pro', Osaka, 'ÇlÇr ÇoÉSÉVÉbÉN', sans-serif;
+	font-size: 14px;
+	color: #333;
+	background-color: #ddd;
+}
+/*==========================================================
+Å@ [äÓñ{CSSê›íË] CLASS
+==========================================================*/
+div#disp {
+	color: #111;
+}
+
+div#seat_view {
+	padding: 10px;
+}
+
+div#seat_list {
+	padding: 10px;
+}
+
+div#attendance_status {
+	padding: 10px;
+}
+div#call_status {
+	padding: 10px;
+}
+
+
+
+div#menu .button {
+	background-color: #33EEEE;
+	border-top: solid 10px #33CCCC;
+	margin-left: 10px;
+	padding: 30px 10px;
+	height: 20px;
+	width: 100px;
+	float: left;
+}
+
+div#menu .button:hover {
+	background-color: #33CCCC;
+	border-top: solid 10px #33AAAA;
+	margin-left: 10px;
+	padding: 30px 10px;
+	height: 20px;
+	width: 100px;
+	float: left;
+}
+
+div#sortlist img {
+	width: 250px;
+	height: 175px;
+	margin: 10px;
+	float: left;
+}
+
+div#sortlist .button {
+	background-color: #ddd;
+	border-bottom: solid 1px #333;
+	height: 200px;
+	padding: 5px 0px 5px 10px;
+}
+
+div#sortlist .button:hover {
+	background-color: #eee;
+	border-bottom: solid 1px #333;
+	height: 200px;
+	padding: 5px 0px 5px 10px;
+}
+
+div#sortlist div.exposition {
+	margin: 10px 0px;
+}
+
+div#sortlist h3 {
+	font-weight: bold;
+}
+
+div#sortlist img {
+	width: 250px;
+	height: 175px;
+	margin: 10px;
+	float: left;
+}
+
+div#attendance_status .button {
+	background-color: #ddd;
+	border: solid 1px #333;
+	width: 150px;
+	height: 20px;
+	padding: 30px;
+}
+
+div#attendance_status .button:hover {
+	background-color: #eee;
+	border: solid 1px #333;
+	width: 150px;
+	height: 20px;
+	padding: 30px;
+}
+div#attendance_status .button {
+	background-color: #ddd;
+	border: solid 1px #333;
+	width: 150px;
+	height: 20px;
+	padding: 30px;
+}
+
+div#call_status .button:hover {
+	background-color: #33EEEE;
+	border: solid 1px #333;
+	width: 150px;
+	height: 20px;
+	padding: 30px;
+}
+div#call_status .button {
+	background-color: #33EEEE;
+	border: solid 1px #333;
+	width: 150px;
+	height: 20px;
+	padding: 30px;
+}
+/*==========================================================
+Å@ [äÓñ{CSSê›íË] ID
+==========================================================*/
+div#menu {
+	background-color: #339999;
+	border-bottom: solid 1px #333;
+	height: 100px;
+}
+
+div#status {
+	background-color: #eee;
+	border-bottom: solid 1px #333;
+	height: 20px;
+	padding: 5px 0px 5px 10px;
+}
+
+#bbbtn {
+	width: 300px;
+	color: #e4eef8;
+	background: #337fcc;
+	font-size: 28px;
+	font-weight: bold;
+	text-shadow: 0 -1px 1px #143352;
+	text-align: center;
+	display: block;
+	text-decoration: none;
+	border: 1px solid #225588;
+	padding: 12px 0 8px 0;
+	border-radius: 12px;
+	background: -moz-linear-gradient(rgba(34, 85, 136, 0.5),
+		rgba(34, 85, 136, 1));
+	background: -webkit-gradient(linear, 100% 0%, 100% 100%, from(rgba(34, 85, 136, 0.5)),
+		to(rgba(34, 85, 136, 1)));
+	box-shadow: 0px 1px 0px #1b446d, 0px 2px 0px #1b446d, 0px 3px 0px
+		#1b446d, 0px 4px 0px #1b446d, 0px 5px 0px #1b446d, 0px 6px 0px #1b446d,
+		0px 7px 0px #1b446d, 2px 7px 3px rgba(0, 0, 0, 0.3), 0px 1px 0px
+		rgba(255, 255, 255, 0.5) inset, 0px -1px 0px rgba(255, 255, 255, 0.2)
+		inset;
+}
+
+a#bbbtn:hover {
+	background: -moz-linear-gradient(rgba(119, 170, 221, 0.9),
+		rgba(34, 85, 136, 0.9));
+	background: -webkit-gradient(linear, 100% 100%, 100% 0%, from(rgba(34, 85, 136, 0.9)),
+		to(rgba(119, 170, 221, 0.9)));
+	box-shadow: 0px 1px 0px #225588, 0px 2px 0px #225588, 0px 3px 0px
+		#225588, 0px 4px 0px #225588, 0px 5px 0px #225588, 0px 6px 0px #225588,
+		0px 7px 0px #225588, 2px 7px 3px rgba(0, 0, 0, 0.3), 0px 1px 0px
+		rgba(255, 255, 255, 0.5) inset, 0px -1px 0px rgba(255, 255, 255, 0.2)
+		inset;
+}
+
+#container {
+	display: none;
+}
+
+#loading {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -30px;
+}
