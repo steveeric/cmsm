@@ -1,0 +1,8 @@
+<?php
+
+/*ユーザエージェント取得*/
+echo $ua = $_SERVER['HTTP_USER_AGENT'];
+  include('../module/php/distribut/t_i.php');
+  $t = new DistributPhone();
+echo "\\\\".$t -> distributPhoneKey();
+?>
