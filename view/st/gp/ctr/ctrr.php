@@ -1,78 +1,82 @@
 <?php
-include('../../../../module/php/base/db/db_access.php');
+include ('../../../../module/php/base/db/db_access.php');
 
-/*全画面からわたされたPOSTを受け取る*/
-$randomNo = $_POST['r'];
-$scheduleId = $_POST['s'];
-$unAttId = $_POST['unId'];
-$timeTableId = $_POST['t'];
-$teacherId = $_POST['tid'];
-$roomId = $_POST['rid'];
-$seatBlockName = $_POST['seatBlockId'];
-$seatRow = $_POST['seatRow'];
-$seatColumn = $_POST['seatColumn'];
-$studentId = $_POST['id'];
-$process = $_POST['p'];
+/* 全画面からわたされたPOSTを受け取る */
+$randomNo = $_POST ['r'];
+$scheduleId = $_POST ['s'];
+$unAttId = $_POST ['unId'];
+$timeTableId = $_POST ['t'];
+$teacherId = $_POST ['tid'];
+$roomId = $_POST ['rid'];
+$seatBlockName = $_POST ['seatBlockId'];
+$seatRow = $_POST ['seatRow'];
+$seatColumn = $_POST ['seatColumn'];
+$studentId = $_POST ['id'];
+$process = $_POST ['p'];
 
-/*過去に出席申請したかをチェックする．*/
-$sql = "SELECT ATTEND_TIME FROM `ATTENDEE` WHERE `SCHEDULE_ID` LIKE '".$scheduleId."' AND `STUDENT_ID` = '".$studentId."'";
-$pastAttResult = $con -> query($sql);
-if(count($pastAttResult) == 1){
-	/*すでに出席している*/
-	$time = $pastAttResult[0]['ATTEND_TIME'];
-	sucessAttend($studentId,$time,$seatBlockName,$seatRow,$seatColumn);
-}else{
-	if($process == 0){
-		/*この授業初めて*/
-		/*入力された座席が存在するか*/
-		$sql = "SELECT S.SEAT_ID FROM `ROOM_MST`R,SEAT_BLOCK_MST SB,SEAT_MST S
+/* 過去に出席申請したかをチェックする． */
+$sql = "SELECT ATTEND_TIME FROM `ATTENDEE` WHERE `SCHEDULE_ID` LIKE '" . $scheduleId . "' AND `STUDENT_ID` = '" . $studentId . "'";
+$pastAttResult = $con->query ( $sql );
+if (count ( $pastAttResult ) == 1) {
+	/* すでに出席している */
+	$time = $pastAttResult [0] ['ATTEND_TIME'];
+	sucessAttend ( $studentId, $time, $seatBlockName, $seatRow, $seatColumn );
+} else {
+	if ($process == 0) {
+		/* この授業初めて */
+		$sql = "SELECT CALL_START_TIME,CALL_END_TIME FROM `CALL_THE_ROLL` WHERE `SCHEDULE_ID` LIKE '" . $nowScheduleResult [0] ['SCHEDULE_ID'] . "' ";
+		$callResult = $con->query ( $sql );
+		if (is_null ( $callResult [0] ['CALL_END_TIME'] )) {
+			/* 入力された座席が存在するか */
+			$sql = "SELECT S.SEAT_ID FROM `ROOM_MST`R,SEAT_BLOCK_MST SB,SEAT_MST S
 				WHERE R.ROOM_ID = SB.ROOM_ID
 				AND SB.SEAT_BLOCK_ID = S.SEAT_BLOCK_ID
-				AND SB.SEAT_BLOCK_NAME = '".$seatBlockName."' AND S.SEAT_ROW = '".$seatRow."' AND S.SEAT_COLUMN = '".$seatColumn."' AND R.ROOM_ID = '".$roomId."'";
-		$chkSeatIdResult = $con -> query($sql);
-		if(count($chkSeatIdResult) == 1){
-			/*座席はある*/
-			$seatId =
-			$sql = "SELECT STUDENT_ID,ATTEND_TIME FROM `ATTENDEE` WHERE `SCHEDULE_ID` LIKE '".$scheduleId."' AND `SEAT_ID` = '".$chkSeatIdResult[0]['SEAT_ID']."'";
-			$chkAttSameSeat = $con -> query($sql);
-			if(count($chkAttSameSeat) == 1){
-				/*既に使われている*/
-				$studentId = $chkAttSameSeat[0]['STUDENT_ID'];
-				$attTime =  $chkAttSameSeat[0]['ATTEND_TIME'];
-				errorSameSeatAtt($randomNo,$studentId,$attTime,$seatBlockName,$seatRow,$seatColumn);
-			}else{
-				confirmEnter($randomNo,$unAttId,$timeTableId,$scheduleId,$teacherId,$studentId,$roomId,$seatBlockName,$seatRow,$seatColumn);
-			}
-		}else{
-			/*座席が無い*/
-			errorNotSeatInDB($randomNo,$seatBlockName,$seatRow,$seatColumn);
-		}
-		/**/
-		/**/
-	}else if($process == 1){
-		$sql = "SELECT S.SEAT_ID FROM `ROOM_MST`R,SEAT_BLOCK_MST SB,SEAT_MST S
-				WHERE R.ROOM_ID = SB.ROOM_ID
-				AND SB.SEAT_BLOCK_ID = S.SEAT_BLOCK_ID
-				AND SB.SEAT_BLOCK_NAME = '".$seatBlockName."' AND S.SEAT_ROW = '".$seatRow."' AND S.SEAT_COLUMN = '".$seatColumn."' AND R.ROOM_ID = '".$roomId."'";
-		$chkSeatIdResult = $con -> query($sql);
-		$seatId = $chkSeatIdResult[0]['SEAT_ID'];
-
-		$attId = $unAttId.$timeTableId.$studentId;
-		$nowTime = $time -> getNowDetaileTime();
-		$sql = "INSERT INTO `ATTENDEE` (`ATTEND_ID`, `SCHEDULE_ID`, `STUDENT_ID`, `SEAT_ID`, `ATTEND_TIME`) VALUES ('".$attId."', '".$scheduleId."', '".$studentId."', '".$seatId."', '".$nowTime."')";
-		$attInsertResult = $con -> execute($sql);
-		if($attInsertResult){
-			sucessAttend($studentId,$nowTime,$seatBlockName,$seatRow,$seatColumn);
-		}else{
-			/*出席できなかった*/
-			mb_language("Japanese");
-			mb_internal_encoding("UTF-8");
-			if (mb_send_mail("si@primary-meta-works.com", "出席不可", "$sql", "From: si@primary-meat-works.com")) {
-				//echo "メールが送信されました。";
-				/*ログに残す必要がある*/
+				AND SB.SEAT_BLOCK_NAME = '" . $seatBlockName . "' AND S.SEAT_ROW = '" . $seatRow . "' AND S.SEAT_COLUMN = '" . $seatColumn . "' AND R.ROOM_ID = '" . $roomId . "'";
+			$chkSeatIdResult = $con->query ( $sql );
+			if (count ( $chkSeatIdResult ) == 1) {
+				/* 座席はある */
+				$seatId = $sql = "SELECT STUDENT_ID,ATTEND_TIME FROM `ATTENDEE` WHERE `SCHEDULE_ID` LIKE '" . $scheduleId . "' AND `SEAT_ID` = '" . $chkSeatIdResult [0] ['SEAT_ID'] . "'";
+				$chkAttSameSeat = $con->query ( $sql );
+				if (count ( $chkAttSameSeat ) == 1) {
+					/* 既に使われている */
+					$studentId = $chkAttSameSeat [0] ['STUDENT_ID'];
+					$attTime = $chkAttSameSeat [0] ['ATTEND_TIME'];
+					errorSameSeatAtt ( $randomNo, $studentId, $attTime, $seatBlockName, $seatRow, $seatColumn );
+				} else {
+					confirmEnter ( $randomNo, $unAttId, $timeTableId, $scheduleId, $teacherId, $studentId, $roomId, $seatBlockName, $seatRow, $seatColumn );
+				}
 			} else {
-				//echo "メールの送信に失敗しました。";
-				/*ログに残す必要がある*/
+				/* 座席が無い */
+				errorNotSeatInDB ( $randomNo, $seatBlockName, $seatRow, $seatColumn );
+			}
+		} else {
+			/* 出席調査を停止した */
+			endAttend ( $callResult [0] ['CALL_END_TIME'] );
+		}
+	} else if ($process == 1) {
+		$sql = "SELECT S.SEAT_ID FROM `ROOM_MST`R,SEAT_BLOCK_MST SB,SEAT_MST S
+				WHERE R.ROOM_ID = SB.ROOM_ID
+				AND SB.SEAT_BLOCK_ID = S.SEAT_BLOCK_ID
+				AND SB.SEAT_BLOCK_NAME = '" . $seatBlockName . "' AND S.SEAT_ROW = '" . $seatRow . "' AND S.SEAT_COLUMN = '" . $seatColumn . "' AND R.ROOM_ID = '" . $roomId . "'";
+		$chkSeatIdResult = $con->query ( $sql );
+		$seatId = $chkSeatIdResult [0] ['SEAT_ID'];
+		
+		$attId = $unAttId . $timeTableId . $studentId;
+		$nowTime = $time->getNowDetaileTime ();
+		$sql = "INSERT INTO `ATTENDEE` (`ATTEND_ID`, `SCHEDULE_ID`, `STUDENT_ID`, `SEAT_ID`, `ATTEND_TIME`) VALUES ('" . $attId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $nowTime . "')";
+		$attInsertResult = $con->execute ( $sql );
+		if ($attInsertResult) {
+			sucessAttend ( $studentId, $nowTime, $seatBlockName, $seatRow, $seatColumn );
+		} else {
+			/* 出席できなかった */
+			mb_language ( "Japanese" );
+			mb_internal_encoding ( "UTF-8" );
+			if (mb_send_mail ( "si@primary-meta-works.com", "出席不可", "$sql", "From: si@primary-meat-works.com" )) {
+				// echo "メールが送信されました。";
+				/* ログに残す必要がある */
+			} else {
+				// echo "メールの送信に失敗しました。";
+				/* ログに残す必要がある */
 			}
 		}
 	}
@@ -82,8 +86,9 @@ if(count($pastAttResult) == 1){
 <?php
 /**
  * DBからseatIDが取得できなかった時
- * **/
-function errorNotSeatInDB($r,$bname,$row,$column){
+ * *
+ */
+function errorNotSeatInDB($r, $bname, $row, $column) {
 	echo <<<EOT
 <html>
 <head>
@@ -118,8 +123,9 @@ EOT;
 
 /**
  * seatIdがすでに使われていた時
- * **/
-function errorSameSeatAtt($r,$studentId,$attTime,$bname,$row,$column){
+ * *
+ */
+function errorSameSeatAtt($r, $studentId, $attTime, $bname, $row, $column) {
 	echo <<<EOT
 <html>
 <head>
@@ -159,8 +165,9 @@ EOT;
 
 /**
  * 入力内容を確認
- * **/
-function confirmEnter($r,$unId,$nowTimeTableId,$scheduleId,$teacherId,$studentId,$roomId,$bname,$row,$column){
+ * *
+ */
+function confirmEnter($r, $unId, $nowTimeTableId, $scheduleId, $teacherId, $studentId, $roomId, $bname, $row, $column) {
 	echo <<<EOT
 <html>
 <head>
@@ -210,8 +217,9 @@ EOT;
 
 /**
  * 出席内容確認
- * **/
-function sucessAttend($studentId,$time,$bname,$row,$column){
+ * *
+ */
+function sucessAttend($studentId, $time, $bname, $row, $column) {
 	echo <<<EOT
 <html>
 <head>
@@ -241,6 +249,33 @@ function sucessAttend($studentId,$time,$bname,$row,$column){
 	<div>
 		$row 行 - $column 列
 	</div>
+	<hr>
+</body>
+</html>
+EOT;
+}
+
+/**
+ * 出席内容確認
+ * *
+ */
+function endAttend($endTime) {
+	echo <<<EOT
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<meta name='viewport'
+	content='width=200px, initial-scale=1, maximum-scale=2'>
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<title>出席申請終了画面</title>
+</head>
+<body style="width: 200px;">
+	<div>出席受付終了</div>
+	<hr>
+		<div>出席申請を終了しました．</div>
+		<div>時間 : $endTime</div>
 	<hr>
 </body>
 </html>
