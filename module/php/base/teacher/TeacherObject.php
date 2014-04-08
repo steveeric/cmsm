@@ -1,4 +1,4 @@
-?php
+<?php
 
 class Teacher{
 	private $teacherId = "0001";

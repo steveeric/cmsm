@@ -22,12 +22,12 @@ if (count ( $pastAttResult ) == 1) {
 	$time = $pastAttResult [0] ['ATTEND_TIME'];
 	sucessAttend ( $studentId, $time, $seatBlockName, $seatRow, $seatColumn );
 } else {
-	if ($process == 0) {
-		/* この授業初めて */
-		$sql = "SELECT CALL_START_TIME,CALL_END_TIME FROM `CALL_THE_ROLL` WHERE `SCHEDULE_ID` LIKE '" . $nowScheduleResult [0] ['SCHEDULE_ID'] . "' ";
-		$callResult = $con->query ( $sql );
-		if (is_null ( $callResult [0] ['CALL_END_TIME'] )) {
-			/* 入力された座席が存在するか */
+	$sql = "SELECT CALL_START_TIME,CALL_END_TIME FROM `CALL_THE_ROLL` WHERE `SCHEDULE_ID` LIKE '" . $scheduleId. "' ";
+	$callResult = $con->query ( $sql );
+	if (is_null ( $callResult [0] ['CALL_END_TIME'] )) {
+		if ($process == 0) {
+			/* この授業初めて */
+			/*入力された座席が存在するか*/
 			$sql = "SELECT S.SEAT_ID FROM `ROOM_MST`R,SEAT_BLOCK_MST SB,SEAT_MST S
 				WHERE R.ROOM_ID = SB.ROOM_ID
 				AND SB.SEAT_BLOCK_ID = S.SEAT_BLOCK_ID
@@ -49,36 +49,36 @@ if (count ( $pastAttResult ) == 1) {
 				/* 座席が無い */
 				errorNotSeatInDB ( $randomNo, $seatBlockName, $seatRow, $seatColumn );
 			}
-		} else {
-			/* 出席調査を停止した */
-			endAttend ( $callResult [0] ['CALL_END_TIME'] );
-		}
-	} else if ($process == 1) {
-		$sql = "SELECT S.SEAT_ID FROM `ROOM_MST`R,SEAT_BLOCK_MST SB,SEAT_MST S
+		} else if ($process == 1) {
+			$sql = "SELECT S.SEAT_ID FROM `ROOM_MST`R,SEAT_BLOCK_MST SB,SEAT_MST S
 				WHERE R.ROOM_ID = SB.ROOM_ID
 				AND SB.SEAT_BLOCK_ID = S.SEAT_BLOCK_ID
 				AND SB.SEAT_BLOCK_NAME = '" . $seatBlockName . "' AND S.SEAT_ROW = '" . $seatRow . "' AND S.SEAT_COLUMN = '" . $seatColumn . "' AND R.ROOM_ID = '" . $roomId . "'";
-		$chkSeatIdResult = $con->query ( $sql );
-		$seatId = $chkSeatIdResult [0] ['SEAT_ID'];
-		
-		$attId = $unAttId . $timeTableId . $studentId;
-		$nowTime = $time->getNowDetaileTime ();
-		$sql = "INSERT INTO `ATTENDEE` (`ATTEND_ID`, `SCHEDULE_ID`, `STUDENT_ID`, `SEAT_ID`, `ATTEND_TIME`) VALUES ('" . $attId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $nowTime . "')";
-		$attInsertResult = $con->execute ( $sql );
-		if ($attInsertResult) {
-			sucessAttend ( $studentId, $nowTime, $seatBlockName, $seatRow, $seatColumn );
-		} else {
-			/* 出席できなかった */
-			mb_language ( "Japanese" );
-			mb_internal_encoding ( "UTF-8" );
-			if (mb_send_mail ( "si@primary-meta-works.com", "出席不可", "$sql", "From: si@primary-meat-works.com" )) {
-				// echo "メールが送信されました。";
-				/* ログに残す必要がある */
+			$chkSeatIdResult = $con->query ( $sql );
+			$seatId = $chkSeatIdResult [0]['SEAT_ID'];
+			
+			$attId = $unAttId . $timeTableId . $studentId;
+			$nowTime = $time->getNowDetaileTime ();
+			$sql = "INSERT IGNORE INTO `ATTENDEE` (`ATTEND_ID`, `SCHEDULE_ID`, `STUDENT_ID`, `SEAT_ID`, `ATTEND_TIME`) VALUES ('" . $attId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $nowTime . "')";
+			$attInsertResult = $con->execute ( $sql );
+			if ($attInsertResult) {
+				sucessAttend ( $studentId, $nowTime, $seatBlockName, $seatRow, $seatColumn );
 			} else {
-				// echo "メールの送信に失敗しました。";
-				/* ログに残す必要がある */
+				/* 出席できなかった */
+				mb_language ( "Japanese" );
+				mb_internal_encoding ( "UTF-8" );
+				if (mb_send_mail ( "si@primary-meta-works.com", "出席不可", "$sql", "From: si@primary-meat-works.com" )) {
+					// echo "メールが送信されました。";
+					/* ログに残す必要がある */
+				} else {
+					// echo "メールの送信に失敗しました。";
+					/* ログに残す必要がある */
+				}
 			}
 		}
+	} else {
+		/* 出席調査を停止した */
+		endAttend ( $callResult [0] ['CALL_END_TIME'] );
 	}
 }
 ?>
