@@ -8,7 +8,7 @@ class MyLogger
     private $log_fname;
 
     public function __construct($baseDir, $fname) {
-        date_default_timezone_set('Asia/Tokyo');
+        //date_default_timezone_set('Asia/Tokyo');
         $this->log_dir = $baseDir;
         $this->log_fname = $fname;
     }

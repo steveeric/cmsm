@@ -1,6 +1,5 @@
 <?php
-//include('../../../../tool/log/logger.php');
-include('logger.php');
+
 class Mail{
 	private $s = "si@primary-meta-works.com";
 	function __construct() {
@@ -14,6 +13,7 @@ class Mail{
 	 * 
 	 * **/
 	public function sendError($title,$error){
+		require_once ('../../../../tool/log/logger.php');
 		if (mb_send_mail($this -> s, $title, $error, "From:".$this -> s)) {
 			/*送信成功*/		
 		} else {
