@@ -1,9 +1,0 @@
-<?php
-include('logger.php');
-y//include('../../log/logger.php');
-$log = new MyLogger("ERROR_QUERY.txt");
-//$log = new MyLogger();
-echo $log -> chkDir();
-$log ->Error("era-"."SQL:");
-echo "okiok";
-?>

@@ -56,7 +56,7 @@ if($l != 20){
 			$spth = $a -> getSmartPhonePath();
 			if($diff == 0){
 				/*登録から一週間以内*/
-			        $url = $spth."/".$contentId."/".$contentId.$extension;
+			       $url = $spth."/".$contentId."/".$contentId.$extension;
 		     		doPauseSPAcessSite($url,$randomNo);
 			}else{
 				/*スマホ*/

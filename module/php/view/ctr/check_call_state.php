@@ -6,9 +6,7 @@
  * SCHEDULE_IDを元に部屋の座席位置情報もJSONで返します．
  *
  * **/
-$dir =  dirname(__FILE__);
-$path =  "../../base/db/db_access.php";
-include($path);
+include('../../base/db/db_access.php');
 
 /*POSTされたでーたを取得*/
 //$scheduleId = $_GET['s'];

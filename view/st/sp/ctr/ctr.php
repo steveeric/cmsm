@@ -89,7 +89,7 @@ div#map {
 		    //alert(seatId+":"+block+":"+row+":"+column);
 		    if(block == -1 && row == -1 && column ==-1){
 			    /*全てが入力さていない*/
-			    alert("「ブロック名」・「行」・「列」を選択してください．");
+			    alert("「群」・「行」・「列」を選択してください．");
 		    }else if(block != -1 && row == -1 && column == -1){
 			    /*行と列が入力されていない*/
 		    	alert("「行」・「列」が選択されていません．");
@@ -100,7 +100,7 @@ div#map {
 			    /*全て入力されているので，もう一度seatIdを割だす．*/
 		    	var id = getSeatId();
 		    	if(id == -1){
-		    		alert("入力された座席位置は使用できません． ブロック:"+block+" 行:"+row+" 列:"+column);
+		    		alert("入力された座席位置は使用できません．" +block+":群 "+row+"行 "+column+"-列");
 		    	}else{
 		    		moveToConfirm();
 		    	}
@@ -189,7 +189,7 @@ div#map {
 			        $.ajaxSetup({ async: true });
 			        $.ajax({
 			        　　　　　timeout: 6000,
-			         url: "../../../../../cmsm/module/php/view/class_time.php",
+			         url: "../../../../module/php/view/class_time.php",
 			         type: "POST",
 			         data: { r : randomNo},
 			         success: function(json){
@@ -256,7 +256,7 @@ div#map {
          				var roomInfo = json['ROOM']['ROOM_NAME'];
          				var seatBlock =json['ROOM']['SEAT_BLOCK'];
          				/*for(var i in seatBlock){
-         					console.log(seatBlock[i].SEAT_BLOCK_NAME+"ブロック");
+         					console.log(seatBlock[i].SEAT_BLOCK_NAME+"群");
          					for(var j in seatBlock[i].SEAT){
          						console.log(seatBlock[i].SEAT[j].SEAT_ROW+"行");
          						for(var k in seatBlock[i].SEAT[j].SEAT_INFO){
@@ -265,7 +265,7 @@ div#map {
          					}
          				}*/
          				/*まだ出席していない*/
-         				$('#entryFormRoomInfo').text(roomInfo);
+         				$('#entryFormRoomInfo').text("教室名 : "+roomInfo);
          				moveToEntryFrom(seatBlock);
          			}
          		}else{
@@ -299,16 +299,19 @@ div#map {
         		data: { r : randomNo,s: scheduleId,sid: seatId },
         		success: function(json){
         			hiddenLoading();
-            		var use = json['USED']['USED_STATE'];
+					var callState = json['CALL']['CALL_STATE'];
+					if(callState == 1){
+						/*出席申請受付中*/
+						var use = json['RESULT']['USED']['USED_STATE'];
             		if(use == 1){
                 		/*既に同一授業で誰かに使用されている．*/
-                		var id = json['USED']['USES_STUDET_ID'];
+                		var id = json['RESULT']['USED']['USES_STUDET_ID'];
             			moveToUsedSeat(id,block,row,column);
             		}else{
-        				var state = json['STATE'];
+        				var state = json['RESULT']['STATE'];
         				//alert("USE"+state);
 	        			if(state==0){
-    	    				var time = json['ATTEND_TIME'];
+    	    				var time = json['RESULT']['ATTEND_TIME'];
         					//出席申請情報を表示する
         					moveToConfirmAttendInfo(time);
         				}else{
@@ -316,6 +319,17 @@ div#map {
         					alert("DBに不具合が発生したため，出席申請が正常に行えませんでした．");
         				}
             		}
+					}else if(callState == 0){
+						/*出席申請停止*/
+						var callState = json['CALL']['CALL_END_TIME'];
+						moveToEndCTR(callState);
+					}else if(callState == -1){
+						/*出席申請異常発生*/
+						alert("出席状態に不具合が生じました.");
+					}else{
+						/**/
+						alert("不具合が生じました.");
+					}
         		},
         		error: function(){
         			hiddenLoading();
@@ -362,8 +376,8 @@ div#map {
    				data : { 'att' : att }*/
     		});
 			$('#attendDate').text("申請日時 : "+time);
-			$('#attendSeatBlock').text("ブロック : "+block);
-			$('#attendSeatPosition').text("位　置 : "+row+" 行 - "+column+" 列");
+			//$('#attendSeatBlock').text("群 : "+block);
+			$('#attendSeatPosition').text("着席位置 : "+block+" 群 "+row+" 行 - "+column+" 列");
 		}
 
 		/**出席情報を表示する画面へ遷移する**/
@@ -375,16 +389,15 @@ div#map {
    				data : { 'attendInfo' : at }*/
     		});
 			$('#attendDate').text("申請日時 : "+time);
-			$('#attendSeatBlock').text("ブロック : "+block);
-			$('#attendSeatPosition').text("位　置 : "+row+" 行 - "+column+" 列");
-		}
+			//$('#attendSeatBlock').text("群 : "+block);
+			$('#attendSeatPosition').text("着席位置 : "+block+" 群 "+row+" 行 - "+column+" 列");		}
 	 	/**出席情報を表示する画面へ遷移する**/
 	    function moveToEntryFrom(si) {
 		    seatInfo=si;
 
 			//参考URL:http://jsdo.it/linclip/lBAZ
 
-			$("#selectSeatBlockName").append('<option value="-1">ブロックを選択して下さい．</option>');
+			$("#selectSeatBlockName").append('<option value="-1">群を選択して下さい．</option>');
 			$("#selectSeatRow").append('<option value="-1">行を選択して下さい．</option>');
 			$("#selectSeatColumn").append('<option value="-1">列を選択して下さい．</option>');
 			//for (var i in seatInfo){
@@ -397,7 +410,7 @@ div#map {
     		$("#selectSeatBlockName").change(function(){
         		//alert("CHAGE:selectSeatBlockName");
         		$("#selectSeatRow").empty();
-        		//ブロックに追加
+        		//群に追加
         		$("#selectSeatRow").append('<option value="-1">行を選択して下さい．</option>');
         			for (var i in seatInfo){
             			if(seatInfo[i].SEAT_BLOCK_NAME == $(this).val()){
@@ -511,7 +524,7 @@ div#map {
 				changeHash: false
     		});
 			$('#usedSeatStudentId').text("学籍番号 : "+id);
-			$('#usedSeatBlock').text("ブロック : "+block);
+			$('#usedSeatBlock').text("群 : "+block);
 			$('#usedSeatPosition').text("位　置 : "+row+" 行 - "+column+" 列");
 		}
 
@@ -523,8 +536,8 @@ div#map {
 				changeHash: false/*,
    				data : { 'att' : att }*/
     		});
-			$('#confirmSeatBlock').text("ブロック : "+block);
-			$('#confirmSeatPosition').text("位　置 : "+row+" 行 - "+column+" 列");
+			//$('#confirmSeatBlock').text("群 : "+block);
+			$('#confirmSeatPosition').text(block+"群 : "+" "+row+" 行 - "+column+" 列");
 		}
 
 	 	/**出席調査終了画面へ遷移する**/
@@ -594,15 +607,19 @@ div#map {
 			<p id="entryFormRoomInfo"></p>
 			<p>着席位置を選択して下さい．</p>
 			<p></p>
-			<p>ブロック</p>
+			<hr>
+			<p>群</p>
 			<select id="selectSeatBlockName" class="design-select-box">
 			</select>
+			<hr>
 			<p>行</p>
 			<select id="selectSeatRow" class="design-select-box">
 			</select>
+			<hr>
 			<p>列</p>
 			<select id="selectSeatColumn" class="design-select-box">
 			</select>
+			<hr>
 			<p></p>
 			<p></p>
 			<a href="" id="confirmBtn" data-role="button" data-inline="true"
@@ -619,11 +636,11 @@ div#map {
 			<h1>入力内容の確認</h1>
 		</div>
 		<div data-role="content" style="text-align: center">
-			<p>以下の内容で間違いありませんか．</p>
+			<p>選択した内容に間違いないですか.</p>
 			<p></p>
-			<p id="confirmSeatBlock"></p>
+			<p>着席位置</p>
 			<p id="confirmSeatPosition"></p>
-			<a href="" id="returnEnterBtn" data-role="button" data-inline="true">戻る</a>
+			<a href="" id="returnEnterBtn" data-role="button" data-inline="true">訂正</a>
 			<a href="" id="attendBtn" data-role="button" data-inline="true"
 				data-theme="b">OK</a>
 		</div>
@@ -656,9 +673,8 @@ div#map {
 			<h1>出席内容確認</h1>
 		</div>
 		<div data-role="content" style="text-align: center">
-			<p>以下の座席位置で出席しました．</p>
+			<p>出席申請が正常に完了しました.</p>
 			<p id="attendDate"></p>
-			<p id="attendSeatBlock"></p>
 			<p id="attendSeatPosition"></p>
 		</div>
 		<div data-role="footer" data-position="fixed">
