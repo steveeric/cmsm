@@ -40,25 +40,28 @@
 	<div id="detail">
 		<div id="tab1" class="tabbox">
 			<p>出席調査</p>
-			<p class="callstarttime">出席調査開始時間  : 開始されていません.</p>
-			<p class="callendtime">出席調査終了時間 :　開始されていません.</p>
+			<p class="callstarttime">出席調査開始時間 : 開始されていません.</p>
+			<p class="callendtime">出席調査終了時間 : 開始されていません.</p>
 			<a href="" id="callStartBtn" data-role="button" data-inline="true"
 				data-theme="b"> 出席調査開始 </a> <a href="" id="callEndBtn"
 				data-role="button" data-inline="true" data-theme="b"> 出席調査終了 </a>
 		</div>
 		<div id="tab2" class="tabbox">
-			<p>タブ2のコンテンツ。</p>
+			<p>出席者一覧</p>
 			<!-- #tab2 -->
-			<a href="" id="attBtn" data-role="button" data-inline="true"
-				data-theme="b"> 出席者 </a>
+			<ul data-role="listview" id="jslistview_ul"  data-inset="true">
+			</ul>
+			<br> <a href="#index" data-role="button" data-icon="arrow-l">戻る</a>
 		</div>
 		<div id="tab3" class="tabbox">
-			<p>タブ3のコンテンツ。</p>
+			<p>座席</p>
 			<!-- #tab3 -->
 		</div>
 		<div id="tab4" class="tabbox">
-			<p>タブ4のコンテンツ。</p>
+			<p>席替え</p>
 			<!-- #tab4 -->
+			<a href="" id="changeSeatBnt" data-role="button" data-inline="true"
+				data-theme="b"> 席替え開始 </a>
 		</div>
 		<div id="tab5" class="tabbox">
 			<p>タブ5のコンテンツ。</p>

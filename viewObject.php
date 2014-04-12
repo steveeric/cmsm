@@ -26,5 +26,4 @@ class ViewObject{
 		return $r."/".$s."/".$p;
 	}
 }
-
 ?>

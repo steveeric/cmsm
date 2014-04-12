@@ -346,6 +346,28 @@ class DB {
 			exit ();
 		}
 	}
+	/**JSONで返す***/
+	public function jsonQuery($sql) {
+		try {
+			$pdo = new PDO ( $this->dsn, $this->user, $this->pass, array (
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
+					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+					PDO::ATTR_EMULATE_PREPARES => false,
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+			) );
+			$stmt = $pdo->prepare ($sql);
+			$stmt->execute ();
+			$rows = array ();
+			while ( $row = $stmt->fetch ( PDO::FETCH_ASSOC ) ) {
+				$rows [] = $row;
+			}
+			return $rows;
+		} catch ( PDOException $e ) {
+			 echo 'Connection failed:'.$e->getMessage();
+			//errorLog ( $sql, $e->getMessage () );
+			exit ();
+		}
+	}
 	
 	// 配列でない結果を得るとき
 	/*
@@ -367,7 +389,7 @@ class DB {
 			$data = $pdo->lastInsertId ();
 			return $flag;
 		} catch ( PDOException $e ) {
-			//echo 'Connection failed:'.$e->getMessage();
+			// echo 'Connection failed:'.$e->getMessage();
 			errorLog ( $sql, $e->getMessage () );
 			exit ();
 		}
@@ -380,11 +402,10 @@ class DB {
 	
 	/* クエリーエラーを出力 */
 	function errorLog($sql, $e) {
-		echo $sql.":".$e;
-		/*require_once ('../../tool/log/logger.php');
-		$log = new MyLogger ( "ERROR_QUERY.txt" );
-		echo $log->chkDir ();
-		$log->Error ( $e . "SQL:" . $sql );*/
+		echo $sql . ":" . $e;
+		/*
+		 * require_once ('../../tool/log/logger.php'); $log = new MyLogger ( "ERROR_QUERY.txt" ); echo $log->chkDir (); $log->Error ( $e . "SQL:" . $sql );
+		 */
 	}
 }
 ?>

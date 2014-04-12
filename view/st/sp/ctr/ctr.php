@@ -431,12 +431,13 @@ div#map {
     				column=-1;
         			$("#selectSeatColumn").selectmenu('refresh', true);
     			}
-
     		});
 
     		$("#selectSeatRow").change(function(){
         		$("#selectSeatColumn").empty();
         		$("#selectSeatColumn").append('<option value="-1">列を選択して下さい．</option>');
+        		$("#selectSeatColumn").selectmenu('refresh', true);
+        		column=-1;
         			for (var i in seatInfo){
             			if(seatInfo[i].SEAT_BLOCK_NAME == $("#selectSeatBlockName").val()){
 			    			for (var j in seatInfo[i].SEAT){

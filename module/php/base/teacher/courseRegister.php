@@ -16,6 +16,7 @@ class CourseRegister{
 				WHERE C.STUDENT_ID = R.STUDENT_ID AND C.SUBJECT_ID LIKE '".$subjectId."' ";
 		$courseRsult = $con -> query($courseSQL);
 		for($i=0;$i<count($courseRsult);$i++){
+			//echo $courseRsult[$i]["RANDOM_NO"];
 			$courseList[] = $courseRsult[$i]["RANDOM_NO"];
 		}
 		return $courseList;

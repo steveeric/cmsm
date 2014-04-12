@@ -7,12 +7,9 @@ include('../mail/mail.php');
 
 $scheduleId = $_POST['s'];
 $situation = $_POST['si'];
-//$scheduleId = $_GET['s'];
-//$situation = $_GET['si'];
 
 /*現在の時刻を取得*/
 $nowTime = $time -> getNowDetaileTime();
-
 $courseObject = new CourseRegister();
 /*履修者を取得する*/
 $courseList = $courseObject -> getCourseRegister($con,$scheduleId);
