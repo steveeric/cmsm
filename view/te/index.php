@@ -39,22 +39,28 @@
 
 	<div id="detail">
 		<div id="tab1" class="tabbox">
-			<p>出席調査</p>
-			<p class="callstarttime">出席調査開始時間 : 開始されていません.</p>
-			<p class="callendtime">出席調査終了時間 : 開始されていません.</p>
-			<a href="" id="callStartBtn" data-role="button" data-inline="true"
-				data-theme="b"> 出席調査開始 </a> <a href="" id="callEndBtn"
-				data-role="button" data-inline="true" data-theme="b"> 出席調査終了 </a>
+			<div data-role="content" style="text-align: center">
+				<p>出席調査</p>
+				<p class="attendCount"></p>
+				<p class="callstarttime">出席調査開始時間 : 開始されていません.</p>
+				<p class="callendtime">出席調査終了時間 : 開始されていません.</p>
+				<a href="" id="callStartBtn" data-role="button" data-inline="true"
+					data-theme="b"> 出席調査開始 </a> <a href="" id="callEndBtn"
+					data-role="button" data-inline="true" data-theme="b"> 出席調査終了 </a>
+			</div>
 		</div>
 		<div id="tab2" class="tabbox">
 			<p>出席者一覧</p>
 			<!-- #tab2 -->
-			<ul data-role="listview" id="jslistview_ul"  data-inset="true">
-			</ul>
-			<br> <a href="#index" data-role="button" data-icon="arrow-l">戻る</a>
-		</div>
+		<div class="tableview-wrapper">
+    <h2 id="toc-a" class="dummy-header"></h2>
+    <div class="tableview" id = "tableviewid">
+       
+    </div>
+</div>	</div>
 		<div id="tab3" class="tabbox">
 			<p>座席</p>
+			<div id="sit-content">
 			<!-- #tab3 -->
 		</div>
 		<div id="tab4" class="tabbox">

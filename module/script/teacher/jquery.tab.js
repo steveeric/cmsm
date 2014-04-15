@@ -4,7 +4,7 @@ $(function(){
 	 * 出席調査終了ボタン不具合アリ
 	 * 
 	 * **/
-	var rootPath = '../../../cmsm/module/php/base/teacher';
+	//var rootPath = '../../../cmsm/module/php/base/teacher';
 	/*ゲットパラメータ取得*/
 	var scheduleId = getUrlVars()['s'];
 	nowActionState();
@@ -110,7 +110,7 @@ $(function(){
 		$.ajaxSetup({ async: true });
 		$.ajax({
 			timeout: 6000,
-			url: rootPath+'/now_action_state.php',
+			url: '../../../cmsm/module/php/base/teacher/now_action_state.php',
 			type: "POST",
 			data: { s : scheduleId},
 			success: function(json){
@@ -124,6 +124,9 @@ $(function(){
 				}else{
 					var st = json['ACTION']['CALL']['START_TIME'];
 					var et = json['ACTION']['CALL']['END_TIME'];
+					/*出席者数を表示*/
+					var ac = json['ATTENDEE'].length;
+					$(".attendCount").text("出席 : "+ac+" 人");
 					if(et==null){
 						/*出席調査中*/
 						callStartSuccessUI(st);
@@ -133,6 +136,8 @@ $(function(){
 					}
 					/*出席者情報をリストビューに加える	*/
 					addAtendListView(json['ATTENDEE']);
+					/*着席状況を描く*/
+					addSitInfo(json['ROOM']);
 				}
 			},error:function(){
 				hideLoading();
@@ -151,7 +156,7 @@ $(function(){
 		$.ajaxSetup({ async: true });
 		$.ajax({
 			timeout: 6000,
-			url: rootPath+'/call_controller.php',
+			url: '../../../cmsm/module/php/base/teacher/call_controller.php',
 			type: "POST",
 			data: { s : scheduleId, si : situation},
 			success: function(json){
@@ -212,6 +217,7 @@ $(function(){
 	//出席調査開始成功
 	function callStartSuccessUI(time){
 		$(".callstarttime").text("出席調査開始時間 : "+time);
+		$(".callendtime").text("出席調査終了時間 : 出席調査を終了していません.");
 		$('#callStartBtn').addClass('ui-disabled');
 		$('#callEndBtn').addClass('ui-state-active');
 	}
@@ -235,7 +241,18 @@ $(function(){
 	　 [出席者のリストビュー]
 	==========================================================*/
 	function addAtendListView(at){
-		$("#jslistview_ul").empty();
+		for(var i in at){  
+			//$("#tableviewid").append("<dl>");
+			//$("#tableviewid").append("<dt>B</dt>");
+			$("#tableviewid").append("<dd>"+at[i].SEAT_BLOCK_NAME+"群 "
+					+at[i].SEAT_ROW+"行 - "
+					+at[i].SEAT_COLUMN+"列 "
+					+at[i].STUDENT_ID +" "
+					+at[i].FULL_NAME +" "
+					+at[i].ATTEND_TIME +"</dd>");
+			//$("#tableviewid").append("</dl>");
+		}
+		/*$("#jslistview_ul").empty();
 		for(var i in at){
 			$("#jslistview_ul").append("<li>"+at[i].SEAT_BLOCK_NAME+"群 "
 					+at[i].SEAT_ROW+"行 - "
@@ -243,9 +260,70 @@ $(function(){
 					+at[i].STUDENT_ID +" "
 					+at[i].FULL_NAME +" "
 					+at[i].ATTEND_TIME +"</li>").listview("refresh");
-			$("#jslistview_ul").append("<li>A群 1行 - 2列 J07011	伊藤翔太</li>").listview("refresh");
-			
+		}*/
+		/*<dl>
+            <dt>A</dt>
+            <dd>AC/DC</dd>
+            <dd>Aphex Twin</dd>
+            <dd>Asian Dub Foundation</dd>
+        </dl>
+        <dl>
+
+            <dd>The Beatles</dd>
+            <dd>Bill Evans &amp; Jim Hall</dd>
+            <dd>The Blues Brothers</dd>
+            <dd>Bob Dylan</dd>
+            <dd>Bruse Springsteen</dd>
+        </dl>
+        <dl>
+            <dt>C</dt>
+            <dd>Carole King</dd>
+            <dd>Char</dd>
+            <dd>Coldplay</dd>
+            <dd>Cream</dd>
+            <dd>Crosby, Stills, Nash &amp; Young</dd>
+        </dl>
+         etc ...*/
+	}
+	/*==========================================================
+[座席を描く]
+==========================================================*/
+	function addSitInfo(at){
+		var sbrc = at['LAYOUT']['BLOCK_LAYOUT']['SEAT_BLOCK_ROW_COUNT'];
+		var sbcc = at['LAYOUT']['BLOCK_LAYOUT']['SEAT_BLOCK_COLUMN_COUNT'];
+		var bb = at['DETAILE_INFO'];
+		for(var i=sbrc;i>0;i--){
+			$("#sit-content").append("<tr>");
+			for(var j=1;j<=sbcc;j++){
+				for(var k in bb){ 
+					if(bb[k].BLOCK.SEAT_BLOCK_ROW == i && bb[k].BLOCK.SEAT_BLOCK_COLUMN == j){
+						/*SEAT_BLOCK_IDから*/
+						/*var sc = at['LAYOUT']['SEAT_LAYOUT'];
+						for(var l in sc){
+							if(sc[l].SEAT_BLOCK_ID == bb[k].BLOCK.SEAT_BLOCK_ID){
+								//console.log(bb[k].BLOCK.SEAT_BLOCK_NAME+":"+sc[l].SEAT_ROW_COUNT+"-"+sc[l].SEAT_COLUMN_COUNT);
+								//$("#sit-content").append("<td>"+bb[k].BLOCK.SEAT_BLOCK_NAME+"</td>");
+								var se = bb[k].BLOCK.SEAT;
+
+								for(var e in se){
+									$("#sit-content").append("<tr>");
+									for(var r=1;r<=sc[l].SEAT_ROW_COUNT;r++){
+										for(var c=1;c<=sc[l].SEAT_COLUMN_COUNT;c++){
+											if(se[e].SEAT_ROW == r && se[e].SEAT_COLUMN==c){
+												$("#sit-content").append("<td>"+se[e].SEAT_ID+":"+se[e].SEAT_ROW+"-"+se[e].SEAT_COLUMN+"</td>");
+											}
+										}
+									}
+									$("#sit-content").append("</tr>");
+								}
+							}
+						}
+					}*/
+						$("#sit-content").append("<td>111</td>");
+					}
+				}
+				$("#sit-content").append("</tr>");
+			}
 		}
 	}
-
 });

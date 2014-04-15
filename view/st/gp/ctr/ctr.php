@@ -23,72 +23,131 @@ $day = $t->getDay ();
  * *
  */
 $nowScheduleResult = $con->getNowScheduleId ( $teacherId, $year, $month, $day, $nowTimeTableId );
-$scheduleId = $nowScheduleResult [0] ['SCHEDULE_ID'];
-if ($scheduleId == null) {
-	endClassTime ();
-} else {
+if(count($nowScheduleResult) == 0){
+endClassTime();
+}else{
+	$scheduleId = $nowScheduleResult [0] ['SCHEDULE_ID'];
 	/* 乱数をから学籍番号を調べる */
 	$checkResult = $con->checkExistenceRegisterInfo ( $randomNo );
 	$studentId = $checkResult [0] ['STUDENT_ID'];
 	/* 既に出席しているかを調べる */
 	$sql = "SELECT CALL_START_TIME,CALL_END_TIME FROM `CALL_THE_ROLL` WHERE `SCHEDULE_ID` LIKE '" . $nowScheduleResult [0] ['SCHEDULE_ID'] . "' ";
 	$callResult = $con->query ( $sql );
-	if (is_null ( $callResult [0] ['CALL_END_TIME'] )) {
-		/* 出席調査中．．． */
-		/*出席申請したかを調べる*/
-		$attResult = $con->getAttendInfo ( $scheduleId, $studentId );
-		if (count ( $attResult ) == 0) {
-			/* まだ出席申請していない */
-			$roomSQL = "SELECT R.ROOM_ID,B.BUILDING_NAME,R.ROOM_NAME
-				FROM `SYLLABUS_MST` SC,ROOM_MST R,BUILDING_MST B
-				WHERE SC.ROOM_ID = R.ROOM_ID
-				AND R.BUILDING_ID = B.BUILDING_ID
-				AND SC.SCHEDULE_ID LIKE '" . $scheduleId . "' ";
-			$roomResult = $con->query ( $roomSQL );
-			$roomId = $roomResult [0] ["ROOM_ID"];
-			$roomName = $roomResult [0] ["BUILDING_NAME"] . $roomResult [0] ["ROOM_NAME"];
-			
-			$selectSeatBLockSQL = "SELECT B.SEAT_BLOCK_ID,B.SEAT_BLOCK_NAME
-				FROM `SYLLABUS_MST` S,SEAT_BLOCK_MST B WHERE S.ROOM_ID = B.ROOM_ID
-				AND S.SCHEDULE_ID = '" . $scheduleId . "' ORDER BY `B`.`SEAT_BLOCK_NAME` ASC ";
-			$seatResult = $con->query ( $selectSeatBLockSQL );
-			
-			for($i = 0; $i < count ( $seatResult ); $i ++) {
-				$seatBlockId = $seatResult [$i] ["SEAT_BLOCK_ID"];
-				$saetBlockName = $seatResult [$i] ["SEAT_BLOCK_NAME"];
-				$seatBlockList [] = array (
-						$saetBlockName => $saetBlockName 
-				);
+	if(count($callResult) == 0){
+		/*出席調査を開始していない*/
+		notStartCall($randomNo);
+	}else{
+		if(is_null ( $callResult [0] ['CALL_END_TIME'] )){
+			/*出席調査中...*/
+			 		$attResult = $con->getAttendInfo ( $scheduleId, $studentId );
+					if (count ( $attResult ) == 0) {
+						/* まだ出席申請していない */
+						$roomSQL = "SELECT R.ROOM_ID,B.BUILDING_NAME,R.ROOM_NAME
+							FROM `SYLLABUS_MST` SC,ROOM_MST R,BUILDING_MST B
+							WHERE SC.ROOM_ID = R.ROOM_ID
+							AND R.BUILDING_ID = B.BUILDING_ID
+							AND SC.SCHEDULE_ID LIKE '" . $scheduleId . "' ";
+						$roomResult = $con->query ( $roomSQL );
+						$roomId = $roomResult [0] ["ROOM_ID"];
+						$roomName = $roomResult [0] ["BUILDING_NAME"] . $roomResult [0] ["ROOM_NAME"];
+				
+						$selectSeatBLockSQL = "SELECT B.SEAT_BLOCK_ID,B.SEAT_BLOCK_NAME
+							FROM `SYLLABUS_MST` S,SEAT_BLOCK_MST B WHERE S.ROOM_ID = B.ROOM_ID
+							AND S.SCHEDULE_ID = '" . $scheduleId . "' ORDER BY `B`.`SEAT_BLOCK_NAME` ASC ";
+						$seatResult = $con->query ( $selectSeatBLockSQL );
+				
+						for($i = 0; $i < count ( $seatResult ); $i ++) {
+							$seatBlockId = $seatResult [$i] ["SEAT_BLOCK_ID"];
+							$saetBlockName = $seatResult [$i] ["SEAT_BLOCK_NAME"];
+							$seatBlockList [] = array (
+									$saetBlockName => $saetBlockName
+							);
+						}
+						attendApplicationScreen ( $randomNo, $y, $month, $day, $nowTimeTableId, $scheduleId, $teacherId, $studentId, $roomId, $roomName, $seatBlockList );
+					} else {
+						/* 既に出席申請した */
+						$studentId = $attResult [0] ['STUDENT_ID'];
+						$time = $attResult [0] ['ATTEND_TIME'];
+						$bname = $attResult [0] ['SEAT_BLOCK_NAME'];
+						$row = $attResult [0] ['SEAT_ROW'];
+						$column = $attResult [0] ['SEAT_COLUMN'];
+						sucessAttend ( $studentId, $time, $bname, $row, $column );
+					}
+		}else{
+			/*出席申請が終了している*/
+			$attResult = $con->getAttendInfo ( $scheduleId, $studentId );
+			if(count($attResult) == 0){
+			//if (is_null ( $attResult [0] ['ATTEND_TIME'] )) {
+				/* 出席していない */
+				endAttend ( $callResult [0] ['CALL_END_TIME'] );
+			} else {
+				/* 出席していた */
+				$studentId = $attResult [0] ['STUDENT_ID'];
+				$time = $attResult [0] ['ATTEND_TIME'];
+				$bname = $attResult [0] ['SEAT_BLOCK_NAME'];
+				$row = $attResult [0] ['SEAT_ROW'];
+				$column = $attResult [0] ['SEAT_COLUMN'];
+				sucessAttend ( $studentId, $time, $bname, $row, $column );
 			}
-			
-			attendApplicationScreen ( $randomNo, $y, $month, $day, $nowTimeTableId, $scheduleId, $teacherId, $studentId, $roomId, $roomName, $seatBlockList );
-		} else {
-			/* 既に出席申請した */
-			$studentId = $attResult [0] ['STUDENT_ID'];
-			$time = $attResult [0] ['ATTEND_TIME'];
-			$bname = $attResult [0] ['SEAT_BLOCK_NAME'];
-			$row = $attResult [0] ['SEAT_ROW'];
-			$column = $attResult [0] ['SEAT_COLUMN'];
-			sucessAttend ( $studentId, $time, $bname, $row, $column );
-		}
-	} else {
-		/* 出席調査が終了している */
-		/*現在のSCHEDULE_IDの時に出席したかを調べる*/
-		$attResult = $con->getAttendInfo ( $scheduleId, $studentId );
-		if (is_null ( $attResult [0] ['ATTEND_TIME'] )) {
-			/* 出席していない */
-			endAttend ( $callResult [0] ['CALL_END_TIME'] );
-		} else {
-			/* 出席していた */
-			$studentId = $attResult [0] ['STUDENT_ID'];
-			$time = $attResult [0] ['ATTEND_TIME'];
-			$bname = $attResult [0] ['SEAT_BLOCK_NAME'];
-			$row = $attResult [0] ['SEAT_ROW'];
-			$column = $attResult [0] ['SEAT_COLUMN'];
-			sucessAttend ( $studentId, $time, $bname, $row, $column );
 		}
 	}
 }
+// 	if (is_null ( $callResult [0] ['CALL_END_TIME'] )) {
+		/* 出席調査中．．． */
+		/*出席申請したかを調べる*/
+// 		$attResult = $con->getAttendInfo ( $scheduleId, $studentId );
+// 		if (count ( $attResult ) == 0) {
+// 			/* まだ出席申請していない */
+// 			$roomSQL = "SELECT R.ROOM_ID,B.BUILDING_NAME,R.ROOM_NAME
+// 				FROM `SYLLABUS_MST` SC,ROOM_MST R,BUILDING_MST B
+// 				WHERE SC.ROOM_ID = R.ROOM_ID
+// 				AND R.BUILDING_ID = B.BUILDING_ID
+// 				AND SC.SCHEDULE_ID LIKE '" . $scheduleId . "' ";
+// 			$roomResult = $con->query ( $roomSQL );
+// 			$roomId = $roomResult [0] ["ROOM_ID"];
+// 			$roomName = $roomResult [0] ["BUILDING_NAME"] . $roomResult [0] ["ROOM_NAME"];
+			
+// 			$selectSeatBLockSQL = "SELECT B.SEAT_BLOCK_ID,B.SEAT_BLOCK_NAME
+// 				FROM `SYLLABUS_MST` S,SEAT_BLOCK_MST B WHERE S.ROOM_ID = B.ROOM_ID
+// 				AND S.SCHEDULE_ID = '" . $scheduleId . "' ORDER BY `B`.`SEAT_BLOCK_NAME` ASC ";
+// 			$seatResult = $con->query ( $selectSeatBLockSQL );
+			
+// 			for($i = 0; $i < count ( $seatResult ); $i ++) {
+// 				$seatBlockId = $seatResult [$i] ["SEAT_BLOCK_ID"];
+// 				$saetBlockName = $seatResult [$i] ["SEAT_BLOCK_NAME"];
+// 				$seatBlockList [] = array (
+// 						$saetBlockName => $saetBlockName 
+// 				);
+// 			}
+			
+// 			attendApplicationScreen ( $randomNo, $y, $month, $day, $nowTimeTableId, $scheduleId, $teacherId, $studentId, $roomId, $roomName, $seatBlockList );
+// 		} else {
+// 			/* 既に出席申請した */
+// 			$studentId = $attResult [0] ['STUDENT_ID'];
+// 			$time = $attResult [0] ['ATTEND_TIME'];
+// 			$bname = $attResult [0] ['SEAT_BLOCK_NAME'];
+// 			$row = $attResult [0] ['SEAT_ROW'];
+// 			$column = $attResult [0] ['SEAT_COLUMN'];
+// 			sucessAttend ( $studentId, $time, $bname, $row, $column );
+// 		}
+// 	} else {
+// 		/* 出席調査が終了している */
+// 		/*現在のSCHEDULE_IDの時に出席したかを調べる*/
+// 		$attResult = $con->getAttendInfo ( $scheduleId, $studentId );
+// 		if (is_null ( $attResult [0] ['ATTEND_TIME'] )) {
+// 			/* 出席していない */
+// 			endAttend ( $callResult [0] ['CALL_END_TIME'] );
+// 		} else {
+// 			/* 出席していた */
+// 			$studentId = $attResult [0] ['STUDENT_ID'];
+// 			$time = $attResult [0] ['ATTEND_TIME'];
+// 			$bname = $attResult [0] ['SEAT_BLOCK_NAME'];
+// 			$row = $attResult [0] ['SEAT_ROW'];
+// 			$column = $attResult [0] ['SEAT_COLUMN'];
+// 			sucessAttend ( $studentId, $time, $bname, $row, $column );
+// 		}
+// 	}
+// }
 /**
  * 出席申請画面を出力する*
  */
@@ -102,7 +161,7 @@ function attendApplicationScreen($randomNo, $y, $month, $day, $nowTimeTableId, $
 	echo "<meta http-equiv='expires' content='0' />";
 	echo "<title>出席申請画面</title>";
 	echo "</head>";
-	echo "<body style='width: 200px;'>";
+	echo "<body style='width: 250px;'>";
 	echo "<form method='POST' action='ctrr.php'>";
 	echo "<div>着席位置を入力して下さい．</div>";
 	echo "<hr>";
@@ -130,13 +189,13 @@ function attendApplicationScreen($randomNo, $y, $month, $day, $nowTimeTableId, $
 	// disp_list($seatBlockNameList);
 }
 function disp_list($seatBlockNameList) {
-	echo "ブロック : <select name=seatBlockId>";
+	echo "    <select name=seatBlockId>";
 	foreach ( $seatBlockNameList as $key => $value ) {
 		foreach ( $value as $k => $v ) {
 			echo "<option value='$k'>$v</option>";
 		}
 	}
-	echo "</select>";
+	echo "</select> 群";
 }
 
 /**
@@ -206,6 +265,34 @@ EOT;
 }
 
 /**
+ * 出席調査を開始していない場合
+ * *
+ */
+function notStartCall($randomNo) {
+	echo <<<EOT
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<meta name='viewport'
+	content='width=200px, initial-scale=1, maximum-scale=2'>
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<title>授業時間</title>
+<script type="text/javascript" src="js/main.js"></script>
+</head>
+<body style="width: 200px;">
+	<div>まだ出席調査を開始していません.</div>
+	<form method='GET' action='ctr.php'>
+	<input style='padding: 15px 70px;' type='submit' value='再読み込み' />
+	<input type='hidden' name='r' value=$randomNo>
+	</form>
+</body>
+</html>
+EOT;
+}
+
+/**
  * 時間外
  * *
  */
@@ -223,7 +310,7 @@ function endClassTime() {
 <script type="text/javascript" src="js/main.js"></script>
 </head>
 <body style="width: 200px;">
-	<div>現在は授業時間外です.</div>
+	<div>現在の時間帯に提供できるコンテンツがありません.</div>
 </body>
 </html>
 EOT;

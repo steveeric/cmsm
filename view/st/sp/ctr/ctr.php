@@ -563,6 +563,11 @@ div#map {
 		<div data-role="content" style="text-align: center">
 			<p>読み込み中です．．．</p>
 			<p>しばらくお待ちください．</p>
+			
+			<p>画面が切り替わらない場合は，</p>
+			<p>再読み込みをタップしてください.</p>
+			<a href="" id="reloadBtn" data-role="button" data-inline="true"
+                                data-theme="b">再読み込み</a>
 		</div>
 		<div data-role="footer" data-position="fixed">
 			<h4>&copy; 2014 Primary Meta Works</h4>
@@ -697,9 +702,6 @@ div#map {
 		</div>
 	</div>
 	<!--content end-->
-	<div data-role="footer" style="text-align: center">
-		<h4>&copy; 2014 Primary Meta Works</h4>
-	</div>
 
 	<div data-role="page" id="notTodayClass" data-theme="b">
 		<div data-role="header">
@@ -718,15 +720,11 @@ div#map {
 			<h1>授業時間外</h1>
 		</div>
 		<div data-role="content" style="text-align: center">
-			<p>現在の時間帯に履修している科目がありません．</p>
+			<p>現在の時間帯に提供できるコンテンツがありません.</p>
 		</div>
 		<div data-role="footer" data-position="fixed">
 			<h4>&copy; 2014 Primary Meta Works</h4>
 		</div>
-	</div>
-	<!--content end-->
-	<div data-role="footer" style="text-align: center">
-		<h4>&copy; 2014 Primary Meta Works</h4>
 	</div>
 
 	<!-- footer end-->

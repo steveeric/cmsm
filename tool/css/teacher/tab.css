@@ -6,14 +6,25 @@ ul#tab {
 	margin: 0 auto;
 	padding: 0;
 }
-ul#tab:after { content:"."; display: block; height:0px; clear:both; line-height:0; visibility:hidden; }
+
+ul#tab:after {
+	content: ".";
+	display: block;
+	height: 0px;
+	clear: both;
+	line-height: 0;
+	visibility: hidden;
+}
+
 ul#tab li {
 	float: left;
 	text-align: center;
 }
+
 ul#tab li:last-child {
 	background: none;
 }
+
 ul#tab li a {
 	display: block;
 	width: 138px;
@@ -21,24 +32,121 @@ ul#tab li a {
 	text-decoration: none;
 	color: #222;
 }
+
 ul#tab li a:hover {
 	background: #c95560;
 	color: #fff;
 }
-ul#tab li.active,
-ul#tab li.active a,
-ul#tab li.active a:hover {
+
+ul#tab li.active,ul#tab li.active a,ul#tab li.active a:hover {
 	background: #c81528;
 	color: #fff;
 }
+
 #detail {
 	clear: both;
 	overflow: hidden;
 	background: #f7f7f7;
 	width: 650px;
-	height: 200px;
+	height: 800px;
 	padding: 20px;
 }
+
+.ui-content .h1 {
+        color: #5E87B0;
+        font-size: 17px;
+        text-shadow: 1px 0 0 #FFF;
+}
+
 .tabbox {
 	display: none;
+}
+
+	.tableview {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y:
+	auto;
+  position: absolute;
+  width: 100%;
+}
+.tableview
+	dl {
+  margin: 0;
+  min-height: 1px;
+  overflow:
+	hidden;
+  padding: 24px 0 0;
+  position: relative;
+}
+.tableview
+	dl.animated dt {
+  bottom: 0;
+  top: auto;
+}
+.tableview dt {
+  bottom:
+	auto;
+  min-height: 1px;
+  top: 0;
+}
+.tableview
+	dd {
+  background: #fff;
+  font-size: 20px;
+  font-weight:
+	bold;
+  line-height: 45px;
+  margin: 0;
+  padding: 0 0 0 12px;
+  white-space:
+	nowrap;
+}
+.tableview dd + dd {
+  border-top: 1px
+	solid #ccc;
+}
+ 
+.tableview-wrapper {
+  font-family:
+	Helvetica, Arial, sans-serif;
+  height: 700px;
+  overflow:
+	visible;
+  position:
+	relative;
+  zoom: 1;
+}
+.tableview-wrapper .dummy-header {
+  box-sizing:
+	border-box;
+  margin: 0;
+  z-index: 1000;
+}
+.tableview-wrapper .dummy-header.hidden {
+  visibility:
+	hidden;
+}
+ 
+.tableview-wrapper .dummy-header,
+.tableview
+	dt {
+  background: #B8C1C8;
+  background:
+	rgba(184, 193, 200, 0.85);
+  border-bottom: 1px
+	solid #989EA4;
+  border-top: 1px
+	solid #717D85;
+  color: #fff;
+  font-size: 18px;
+  font-weight:
+	bold;
+  line-height: 21px;
+  margin-top: 0;
+  padding: 2px 0 0 12px;
+  position:
+	absolute;
+  text-shadow: 0 1pxrgba(58, 58, 58, 0.8);
+  width: 100%;
 }

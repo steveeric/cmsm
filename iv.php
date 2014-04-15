@@ -84,7 +84,7 @@ function dayDiff($registTime,$nowDay){
 	$regDay = substr($registTime, 0, 10);
 	$daydiff = (strtotime($nowDay)-strtotime($regDay))/(3600*24);
 	$difKey=-1;
-	if($daydiff < 2){
+	if($daydiff < 100){
 		/*一週間以内*/
 		$difKey=0;
 	}else{

@@ -106,10 +106,7 @@ function errorNotSeatInDB($r, $bname, $row, $column) {
 	<hr>
 		<div>入力内容</div>
 	<div>
-		ブロック名 : $bname
-	</div>
-	<div>
-		$row 行 - $column 列
+		 $bname 群 $row 行 - $column 列
 	</div>
 	<hr>
 		<form method='GET' action='ctr.php'>
@@ -147,10 +144,7 @@ function errorSameSeatAtt($r, $studentId, $attTime, $bname, $row, $column) {
 		<div>に使用しました．</div>
 		<div>入力内容</div>
 	<div>
-		ブロック名 : $bname
-	</div>
-	<div>
-		$row 行 - $column 列
+		$bname 群 $row 行 - $column 列
 	</div>
 	<div>空いている付近の座席で再出席申請して下さい．</div>
 	<hr>
@@ -186,10 +180,7 @@ function confirmEnter($r, $unId, $nowTimeTableId, $scheduleId, $teacherId, $stud
 	<hr>
 		<div>入力内容</div>
 	<div>
-		ブロック名 : $bname
-	</div>
-	<div>
-		$row 行 - $column 列
+		$bname 群 $row 行 - $column 列
 	</div>
 	<hr>
 		<form method='POST' action='ctrr.php'>
@@ -244,10 +235,7 @@ function sucessAttend($studentId, $time, $bname, $row, $column) {
 	</div>
 		<div>着座位置</div>
 	<div>
-		ブロック : $bname
-	</div>
-	<div>
-		$row 行 - $column 列
+		$bname 群 $row 行 - $column 列
 	</div>
 	<hr>
 </body>
