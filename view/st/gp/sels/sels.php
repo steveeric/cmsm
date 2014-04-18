@@ -9,7 +9,7 @@ if ($notSeat == 1) {
 	notSeatView ();
 } else {
 	/* 正常に座席が割り振られた */
-	confirmGroupView ( $studentId, $gpName, $blockName, $row, $column );
+	confirmSitPostionView ( $studentId,$blockName, $row, $column );
 }
 
 ?>
@@ -47,7 +47,7 @@ EOT;
  * 座席が割り振られなかった
  * *
  */
-function confirmGroupView($stid, $gpName, $b, $r, $c) {
+function confirmSitPostionView($stid,$b, $r, $c) {
 	echo <<<EOT
 <html>
 <head>
@@ -57,13 +57,12 @@ function confirmGroupView($stid, $gpName, $b, $r, $c) {
 <meta http-equiv="pragma" content="no-cache" />
 <meta http-equiv="cache-control" content="no-cache" />
 <meta http-equiv="expires" content="0" />
-<title>本日のグループ</title>
+<title>本日の着席位置</title>
 </head>
 <body style="width: 200px;">
-	<div>本日のグループ</div>
+	<div>本日の着席位置</div>
 	<hr>
 		<div>[$stid]さんは､</div>
-		<div>[$gpName]グループです.</div>
 			<div> $b 群 $r 行 - $c 列</div>
 		<div>に着席してください.</div>
 	<hr>
