@@ -79,8 +79,8 @@ if ($l != 20) {
 		$buttomURL = ".php?r=";
 		$extension = ".php";
 		/**
-		 * ガラケー : 1
-		 * スマホ : 0
+		 * ガラケー : 0
+		 * スマホ : 1
 		 *
 		 * 注意！！！！
 		 * 必ず0にしておいてください．
@@ -92,7 +92,7 @@ if ($l != 20) {
 			if ($diff == 0) {
 				/* 登録から一週間以内 */
 				$url = $gpth . "/" . $contentId . "/" . $contentId . $extension;
-				doPauseGPAcessSite ( $url, $randomNo );
+				doPauseGPAcessSite ( $url, $randomNo, $scheduleId );
 			} else {
 				$url = $gpth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
 				doAccessSite ( $url );
@@ -102,7 +102,7 @@ if ($l != 20) {
 			if ($diff == 0) {
 				/* 登録から一週間以内 */
 				$url = $spth . "/" . $contentId . "/" . $contentId . $extension;
-				doPauseSPAcessSite ( $url, $randomNo );
+				doPauseSPAcessSite ( $url, $randomNo, $scheduleId );
 			} else {
 				/* スマホ */
 				$spth = $a->getSmartPhonePath ();
@@ -156,7 +156,8 @@ function doAccessSite($url) {
 /**
  * ガラパコス携帯用*
  */
-function doPauseGPAcessSite($path, $randomNo) {
+function doPauseGPAcessSite($path, $randomNo, $scheduleId) {
+	echo $path;
 	echo <<<EOT
 <html>
 <head>
@@ -175,10 +176,11 @@ function doPauseGPAcessSite($path, $randomNo) {
 	<div>中村先生の授業では，このサイトを通して</div>
 	<div>様々な授業コンテンツを提供致します．</div>
 	<div></div>
-	<div>URL : http://aitech.ac.jp/scr/esl/cmsm/iv.php?r=$randomNo<div>
+	<div>URL : http://aitech.ac.jp/scr/esl/cmsm/iv.php?r=$randomNo&s=$scheduleId<div>
 	<hr>
 	<form action='$path' method='GET'>
 		<input type='hidden' name='r'  value='$randomNo'>
+		<input type='hidden' name='s'  value='$scheduleId'>
 		<input style='padding: 15px 70px;' type='submit' value='次の画面へ' />
 	</form>
 </body>
@@ -189,8 +191,7 @@ EOT;
 /**
  * スマホ用携帯サイト*
  */
-function doPauseSPAcessSite($path, $randomNo) {
-	echo $path;
+function doPauseSPAcessSite($path, $randomNo, $scheduleId) {
 	echo <<<EOT
 <!DOCTYPE HTML>
 <html>
@@ -221,7 +222,7 @@ $(document).ready(function() {
 		</div>
 		<hr>
 		<div data-role="content" style="text-align: center">
-		<a href='$path?r=$randomNo' target="_blank" style="text-align: center">次の画面へ</a>
+		<a href='$path?r=$randomNo&s=$scheduleId' target="_blank" style="text-align: center">次の画面へ</a>
 		</div>
 	</div>
 	<!--content end-->

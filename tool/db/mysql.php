@@ -507,7 +507,7 @@ class DB {
 					PDO::ATTR_EMULATE_PREPARES => false 
 			) );
 			/* 使用できる座席を抽出する */
-			echo $selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
+			$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
 					FROM `SEAT_CHANGE_MST` SC, SEAT_MST SE, SEAT_BLOCK_MST SB
 					WHERE SC.SEAT_ID = SE.SEAT_ID
 					AND SE.SEAT_BLOCK_ID = SB.SEAT_BLOCK_ID
@@ -528,6 +528,7 @@ class DB {
 			$usingSeatSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '1' WHERE `ROOM_ID` = '".$roomId."' AND `SCREEN_CONTENT_ID` = '".$contentId."' AND `SEAT_ID` = '".$seatId."'";
 			$stmt3 = $pdo->prepare ( $usingSeatSQL );
 			$stmt3->execute ();
+			
 		} catch ( PDOException $e ) {
 			echo 'Connection failed:' . $e->getMessage ();
 			// errorLog ( $sql, $e->getMessage () );
