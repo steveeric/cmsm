@@ -157,6 +157,31 @@ class DB {
 	}
 	
 	/**
+	 * 乱数を元に学籍番号を返す
+	 *
+	 * *
+	 */
+	public function getStudentId($randomNo) {
+		$sql = "SELECT STUDENT_ID FROM REGISTER_MST WHERE RANDOM_NO = '" . $randomNo . "'";
+		try {
+			$pdo = new PDO ( $this->dsn, $this->user, $this->pass, array (
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
+					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+					PDO::ATTR_EMULATE_PREPARES => false,
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+			) );
+			$stmt = $pdo->prepare ( $sql );
+			$stmt->execute ();
+			$data = $stmt->fetchAll ( PDO::FETCH_ASSOC );
+			return $data;
+		} catch ( PDOException $e ) {
+			// echo 'Connection failed:'.$e->getMessage();
+			errorLog ( $sql, $e->getMessage () );
+			exit ();
+		}
+	}
+	
+	/**
 	 * DBにとうろくされているURLを取得する
 	 * **
 	 */
@@ -346,7 +371,9 @@ class DB {
 			exit ();
 		}
 	}
-	/**JSONで返す***/
+	/**
+	 * JSONで返す**
+	 */
 	public function jsonQuery($sql) {
 		try {
 			$pdo = new PDO ( $this->dsn, $this->user, $this->pass, array (
@@ -355,7 +382,7 @@ class DB {
 					PDO::ATTR_EMULATE_PREPARES => false,
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
 			) );
-			$stmt = $pdo->prepare ($sql);
+			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
 			$rows = array ();
 			while ( $row = $stmt->fetch ( PDO::FETCH_ASSOC ) ) {
@@ -363,8 +390,8 @@ class DB {
 			}
 			return $rows;
 		} catch ( PDOException $e ) {
-			 echo 'Connection failed:'.$e->getMessage();
-			//errorLog ( $sql, $e->getMessage () );
+			echo 'Connection failed:' . $e->getMessage ();
+			// errorLog ( $sql, $e->getMessage () );
 			exit ();
 		}
 	}
@@ -393,6 +420,120 @@ class DB {
 			errorLog ( $sql, $e->getMessage () );
 			exit ();
 		}
+	}
+	
+	/**
+	 * グルーピングや座席指定ﾃﾞ使用する座席使用情報を初期化する**
+	 */
+	public function initSeatChangeUsing($roomId, $contentId, $attendeeId, $scheduleId, $studentId, $attTime) {
+		$data = null;
+		try {
+			$pdo = new PDO ( $this->dsn, $this->user, $this->pass, array (
+					PDO::ATTR_ORACLE_NULLS => PDO::NULL_NATURAL,
+					PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+					PDO::ATTR_AUTOCOMMIT => true,
+					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+					PDO::ATTR_EMULATE_PREPARES => false 
+			) );
+			
+			$initSeatChangeSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '0' WHERE `ROOM_ID` = ? AND `SCREEN_CONTENT_ID` = ? ";
+			$stmt1 = $pdo->prepare ( $initSeatChangeSQL );
+			$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
+					FROM `SEAT_CHANGE_MST` SC, SEAT_MST SE, SEAT_BLOCK_MST SB
+					WHERE SC.SEAT_ID = SE.SEAT_ID
+					AND SE.SEAT_BLOCK_ID = SB.SEAT_BLOCK_ID
+					AND SC.`USING` = 0
+					AND SC.ROOM_ID = '" . $roomId . "'
+					AND SC.SCREEN_CONTENT_ID = '" . $contentId . "'
+					ORDER BY SC.`SELECTION_ORDER` ASC
+					LIMIT 1 ";
+			
+			/*
+			 * $usingSeatSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '1' WHERE `ROOM_ID` = ? AND `SCREEN_CONTENT_ID` = ? AND `SEAT_ID` = ? AND `USING` = 0 "; $stmt3 = $pdo->prepare ( $usingSeatSQL );
+			 */
+			
+			// トランザクション処理を開始
+			// $data = $pdo->beginTransaction ();
+			// try {
+			// $initSeatChangeSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '0' WHERE `ROOM_ID` = '" . $roomId . "' AND `SCREEN_CONTENT_ID` = '" . $contentId . "' ";
+			// $stmt1 = $pdo->prepare ( $initSeatChangeSQL );
+			// 座席使用状態を初期化
+			$stmt1->bindValue ( 1, $roomId, PDO::PARAM_STR );
+			$stmt1->bindValue ( 2, $contentId, PDO::PARAM_STR );
+			$stmt1->execute ();
+			
+			$data = $this->query ( $selSeatSQL );
+			$seatId = $data [0] ['SEAT_ID'];
+			
+			$preAttSQL = "INSERT INTO `ATTENDEE` (`ATTEND_ID` ,`SCHEDULE_ID` ,`STUDENT_ID` ,`SEAT_ID` ,`ATTEND_TIME`)VALUES ('" . $attendeeId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $attTime . "')";
+			$stmt = $pdo->prepare ( $preAttSQL );
+			$stmt->execute ();
+			
+			$usingSeatSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '1' WHERE `ROOM_ID` = '".$roomId."' AND `SCREEN_CONTENT_ID` = '".$contentId."' AND `SEAT_ID` = '".$seatId."'";
+			$stmt3 = $pdo->prepare ( $usingSeatSQL );
+			$stmt3->execute ();
+			
+			// コミット
+			// $stmt ->commit ();
+			// $stmt1 ->commit ();
+			/* $stmt3 ->commit (); */
+			// } catch ( PDOException $e ) {
+			// $stmt->rollBack ();
+			// $stmt1->rollBack ();
+			// $stmt3->rollBack ();
+			// throw $e;
+			// }
+		} catch ( PDOException $e ) {
+			echo 'Connection failed:' . $e->getMessage ();
+			// errorLog ( $sql, $e->getMessage () );
+			exit ();
+		}
+		return $data;
+	}
+	/**
+	 * 座席の割り振りを行う
+	 * 同一授業に先に出席したものがいた場合
+	 * *
+	 */
+	public function assignmentSeat($roomId, $contentId, $attendeeId, $scheduleId, $studentId, $attTime) {
+		try {
+			$pdo = new PDO ( $this->dsn, $this->user, $this->pass, array (
+					PDO::ATTR_ORACLE_NULLS => PDO::NULL_NATURAL,
+					PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+					PDO::ATTR_AUTOCOMMIT => true,
+					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+					PDO::ATTR_EMULATE_PREPARES => false 
+			) );
+			/* 使用できる座席を抽出する */
+			echo $selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
+					FROM `SEAT_CHANGE_MST` SC, SEAT_MST SE, SEAT_BLOCK_MST SB
+					WHERE SC.SEAT_ID = SE.SEAT_ID
+					AND SE.SEAT_BLOCK_ID = SB.SEAT_BLOCK_ID
+					AND SC.`USING` = 0
+					AND SC.ROOM_ID = '" . $roomId . "'
+					AND SC.SCREEN_CONTENT_ID = '" . $contentId . "'
+					ORDER BY SC.`SELECTION_ORDER` ASC
+					LIMIT 1 ";
+			$data = $this->query ( $selSeatSQL );
+			$seatId = $data [0] ['SEAT_ID'];
+			
+			/* 出席 */
+			$preAttSQL = "INSERT INTO `ATTENDEE` (`ATTEND_ID` ,`SCHEDULE_ID` ,`STUDENT_ID` ,`SEAT_ID` ,`ATTEND_TIME`)VALUES ('" . $attendeeId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $attTime . "')";
+			$stmt = $pdo->prepare ( $preAttSQL );
+			$stmt->execute ();
+			
+			/* 座席を使用状態に */
+			$usingSeatSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '1' WHERE `ROOM_ID` = '".$roomId."' AND `SCREEN_CONTENT_ID` = '".$contentId."' AND `SEAT_ID` = '".$seatId."'";
+			$stmt3 = $pdo->prepare ( $usingSeatSQL );
+			$stmt3->execute ();
+		} catch ( PDOException $e ) {
+			echo 'Connection failed:' . $e->getMessage ();
+			// errorLog ( $sql, $e->getMessage () );
+			exit ();
+		}
+		return $data;
 	}
 	
 	/* REGISTER_MSTに学籍番号が登録されていなかった場合 */
