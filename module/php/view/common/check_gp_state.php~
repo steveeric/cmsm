@@ -56,20 +56,20 @@ if (count ( $result ) == 1) {
 	}
 } else {
 	/* この授業で自分が初めのアクセス */
-	$sql = "SELECT ATTEND_ID FROM `ATTENDEE` WHERE `SCHEDULE_ID` LIKE '" . $scheduleId . "'";
+	echo $sql = "SELECT ATTEND_ID FROM `ATTENDEE` WHERE `SCHEDULE_ID` LIKE '" . $scheduleId . "'";
 	$otherResult = $con->query ( $sql );
 	$stResul = $con->getStudentId ( $randomNo );
-	$studentId = $stResul [0] ['STUDENT_ID'];
+	echo $studentId = $stResul [0] ['STUDENT_ID'];
 	
-	$selectSQL = "SELECT YEAR,MONTH,DAY,TIMETABLE_ID,ROOM_ID FROM `SYLLABUS_MST` WHERE `SCHEDULE_ID` = '" . $scheduleId . "' ";
+	echo $selectSQL = "SELECT YEAR,MONTH,DAY,TIMETABLE_ID,ROOM_ID FROM `SYLLABUS_MST` WHERE `SCHEDULE_ID` = '" . $scheduleId . "' ";
 	$selectResult = $con->query ( $selectSQL );
-	$roomId = $selectResult [0] ["ROOM_ID"];
+	echo $roomId = $selectResult [0] ["ROOM_ID"];
 	$year = $selectResult [0] ["YEAR"];
 	$m = $selectResult [0] ["MONTH"];
 	$d = $selectResult [0] ["DAY"];
 	$t = $selectResult [0] ["TIMETABLE_ID"];
 	$y = substr ( $year, 2 );
-	$attendeeId = $y . $m . $d . $t . $studentId;
+	echo $attendeeId = $y . $m . $d . $t . $studentId;
 	$attendTime = $time->getNowDetaileTime ();
 	if (count ( $otherResult ) > 0) {
 		/* 使用できる座席位置を割り出す */

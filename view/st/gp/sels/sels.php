@@ -2,6 +2,8 @@
 $randomNo = $_GET ['r'];
 $scheduleId = $_GET ['s'];
 
+$content = "sels";
+
 include ('../../../../module/php/view/common/check_gp_state.php');
 
 if ($notSeat == 1) {

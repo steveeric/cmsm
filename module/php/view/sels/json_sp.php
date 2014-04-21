@@ -6,6 +6,8 @@
 $scheduleId = $_POST ['s'];
 $randomNo = $_POST ['r'];
 
+$content="sels";
+
 include('../common/check_gp_state.php');
 
 header('Content-type: application/json');

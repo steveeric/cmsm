@@ -54,7 +54,7 @@ if ($l != 20) {
 			$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'sels',SCHEDULE_ID = '" . $scheduleId . "' 
 					WHERE `RANDOM_NO` = '" . $randomNo . "' ";
 			$upresult = $con->execute ( $upsql );
-		} else if ($aid = 9) {
+		} else if ($aId == 9) {
 			/* グルーピング */
 			$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'gp',SCHEDULE_ID = '" . $scheduleId . "'
 					WHERE `RANDOM_NO` = '" . $randomNo . "' ";
@@ -157,7 +157,6 @@ function doAccessSite($url) {
  * ガラパコス携帯用*
  */
 function doPauseGPAcessSite($path, $randomNo, $scheduleId) {
-	echo $path;
 	echo <<<EOT
 <html>
 <head>
@@ -176,7 +175,7 @@ function doPauseGPAcessSite($path, $randomNo, $scheduleId) {
 	<div>中村先生の授業では，このサイトを通して</div>
 	<div>様々な授業コンテンツを提供致します．</div>
 	<div></div>
-	<div>URL : http://aitech.ac.jp/scr/esl/cmsm/iv.php?r=$randomNo&s=$scheduleId<div>
+	<div>URL : http://aitech.ac.jp/scr/esl/cmsm/iv.php?r=$randomNo<div>
 	<hr>
 	<form action='$path' method='GET'>
 		<input type='hidden' name='r'  value='$randomNo'>

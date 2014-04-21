@@ -35,7 +35,7 @@ if ($l != 20) {
 	/**
 	 * アクセス時間と乱数を元に現在履修している科目があるかを割り出す*
 	 */
-	$sql = "SELECT S.SCHEDULE_ID, S.ACTION_ID 
+	echo $sql = "SELECT S.SCHEDULE_ID, S.ACTION_ID 
 			FROM `COURSE_REGISTRATION_MST` C, REGISTER_MST R, SYLLABUS_MST S 
 			WHERE C.STUDENT_ID = R.STUDENT_ID 
 			AND C.SUBJECT_ID = S.SUBJECT_ID 
@@ -54,7 +54,7 @@ if ($l != 20) {
 			$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'sels',SCHEDULE_ID = '" . $scheduleId . "' 
 					WHERE `RANDOM_NO` = '" . $randomNo . "' ";
 			$upresult = $con->execute ( $upsql );
-		} else if ($aid = 9) {
+		} else if ($aid == 9) {
 			/* グルーピング */
 			$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'gp',SCHEDULE_ID = '" . $scheduleId . "'
 					WHERE `RANDOM_NO` = '" . $randomNo . "' ";
@@ -86,7 +86,7 @@ if ($l != 20) {
 		 * 必ず0にしておいてください．
 		 * **
 		 */
-		if ($key == 0) {
+		if ($key == 1) {
 			/* ガラケー */
 			$gpth = $a->getGalapagosPhonePath ();
 			if ($diff == 0) {
