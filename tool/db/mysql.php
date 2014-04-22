@@ -437,7 +437,7 @@ class DB {
 					PDO::ATTR_EMULATE_PREPARES => false 
 			) );
 			/* 初期化するのでその旨を記録 */
-			$initSQL = "INSERT INTO `LAST_USE_CHANGING` (`SCHEDULE_ID` ,`ROOM_ID` ,`RANDOM_NO` ,`ACCESS_TIME`) VALUES ('" . $scheduleId . "', '" . $roomId . "', '" . $randomNo . "', '" . $attTime . "')";
+			$initSQL = "INSERT INTO `LAST_USE_CHANGING` (`SCHEDULE_ID` ,`ROOM_ID` ,`SCREEN_CONTENT_ID` ,`RANDOM_NO` ,`ACCESS_TIME`) VALUES ('".$scheduleId."', '".$roomId."', '".$contentId."', '".$randomNo."', '" . $attTime . "')";
 			$res = $this->execute ( $initSQL );
 			if ($res) {
 				try {
