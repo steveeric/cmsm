@@ -115,29 +115,47 @@ $(function(){
 			data: { s : scheduleId},
 			success: function(json){
 				hideLoading();
-				var a = json['ACTION'];
-				if(a==null){
-					/*出席終了ボタンを押せなくする*/
-					//$('#callEndBtn').addClass('ui-disabled');
-					/*出席調査開始ボタンを押せるようにする*/
-					$('#callStartBtn').addClass('ui-state-active');
+				var abnormary = json['ABNORMARY_SCHEDULE'];
+				if(abnormary == 1){
+					/*SCHEDULE_IDに異常アリ*/
+					alert("SCHEDULE_IDがおかしい!");
 				}else{
-					var st = json['ACTION']['CALL']['START_TIME'];
-					var et = json['ACTION']['CALL']['END_TIME'];
-					/*出席者数を表示*/
-					var ac = json['ATTENDEE'].length;
-					$(".attendCount").text("出席 : "+ac+" 人");
-					if(et==null){
-						/*出席調査中*/
-						callStartSuccessUI(st);
+					var munualCall = json['MANUAL_CALL'];
+					if(munualCall == 0){
+						/*出席調査を行わない*/
+						var ac = json['ATTENDEE'].length;
+						$(".tab2TodayAttendeeCount").text("本日の出席者数 : "+ac+" 人");
+						/*出席者情報をリストビューに加える	*/
+						addAtendListView(json['ATTENDEE']);
+						/*着席状況を描く*/
+						addSitInfo(json['ROOM']);
 					}else{
-						/*出席申請終了している*/
-						callEndSuccessUI(st,et);
+						var a = json['ACTION'];
+						if(a==null){
+							/*出席終了ボタンを押せなくする*/
+							//$('#callEndBtn').addClass('ui-disabled');
+							/*出席調査開始ボタンを押せるようにする*/
+							$('#callStartBtn').addClass('ui-state-active');
+						}else{
+							/*出席調査を行う*/
+							var st = json['ACTION']['CALL']['START_TIME'];
+							var et = json['ACTION']['CALL']['END_TIME'];
+							/*出席者数を表示*/
+							var ac = json['ATTENDEE'].length;
+							$(".attendCount").text("出席 : "+ac+" 人");
+							if(et==null){
+								/*出席調査中*/
+								callStartSuccessUI(st);
+							}else{
+								/*出席申請終了している*/
+								callEndSuccessUI(st,et);
+							}
+							/*出席者情報をリストビューに加える	*/
+							addAtendListView(json['ATTENDEE']);
+							/*着席状況を描く*/
+							addSitInfo(json['ROOM']);
+						}
 					}
-					/*出席者情報をリストビューに加える	*/
-					addAtendListView(json['ATTENDEE']);
-					/*着席状況を描く*/
-					addSitInfo(json['ROOM']);
 				}
 			},error:function(){
 				hideLoading();

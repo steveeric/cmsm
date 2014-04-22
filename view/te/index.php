@@ -51,30 +51,30 @@
 		</div>
 		<div id="tab2" class="tabbox">
 			<p>出席者一覧</p>
+			<p class="tab2TodayAttendeeCount"></p>
 			<!-- #tab2 -->
-		<div class="tableview-wrapper">
-    <h2 id="toc-a" class="dummy-header"></h2>
-    <div class="tableview" id = "tableviewid">
-       
-    </div>
-</div>	</div>
+			<div class="tableview-wrapper">
+				<h2 id="toc-a" class="dummy-header"></h2>
+				<div class="tableview" id="tableviewid"></div>
+			</div>
+		</div>
 		<div id="tab3" class="tabbox">
 			<p>座席</p>
 			<div id="sit-content">
-			<!-- #tab3 -->
+				<!-- #tab3 -->
+			</div>
+			<div id="tab4" class="tabbox">
+				<p>席替え</p>
+				<!-- #tab4 -->
+				<a href="" id="changeSeatBnt" data-role="button" data-inline="true"
+					data-theme="b"> 席替え開始 </a>
+			</div>
+			<div id="tab5" class="tabbox">
+				<p>タブ5のコンテンツ。</p>
+				<!-- #tab5 -->
+			</div>
+			<!-- #detail -->
 		</div>
-		<div id="tab4" class="tabbox">
-			<p>席替え</p>
-			<!-- #tab4 -->
-			<a href="" id="changeSeatBnt" data-role="button" data-inline="true"
-				data-theme="b"> 席替え開始 </a>
-		</div>
-		<div id="tab5" class="tabbox">
-			<p>タブ5のコンテンツ。</p>
-			<!-- #tab5 -->
-		</div>
-		<!-- #detail -->
-	</div>
 
 </body>
 </html>
