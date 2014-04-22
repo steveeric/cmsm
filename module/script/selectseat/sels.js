@@ -37,25 +37,33 @@ $(document).ready(function() {
 		         data: { r : randomNo, s : scheduleId},
 		         success: function(json){
 		        	hideLoading();
-					var not = json['NOT_SEAT'];
-					if(not==1){
-						/*座席が割り当てれなかった*/
-						moveToNotSeat();
-					}else{
-						/*座席が正常に割り当てられた*/
-						var patt = json['PAST']['PAST_ATTEND'];
-						var stid = json['STUDENT_ID'];
-						var b = json['POSITION']['SEAT_BLOCK_NAME'];
-						var r = json['POSITION']['SEAT_ROW'];
-						var c = json['POSITION']['SEAT_COLUMN'];
-						if(patt == 1){
-							/*過去の情報確認画面へ*/
-							moveToSitPostion(b,r,c);
+		        	var endState = json['END_CLASS_STATE']['END_CLASS_ROOM'];
+		        	if(endState == 1){
+		        		/*授業終了*/
+		        		var subject = json['END_CLASS_STATE']['SUBJECT_NAME'];
+		        		var date = json['END_CLASS_STATE']['DATE'];
+		        		moveToEndClass(subject,date);
+		        	}else{
+		        		var not = json['NOT_SEAT'];
+						if(not==1){
+							/*座席が割り当てれなかった*/
+							moveToNotSeat();
 						}else{
-							/*着席位置表示画面へ*/
-							moveTotodaySitPostion(stid,b,r,c);
+							/*座席が正常に割り当てられた*/
+							var patt = json['PAST']['PAST_ATTEND'];
+							var stid = json['STUDENT_ID'];
+							var b = json['POSITION']['SEAT_BLOCK_NAME'];
+							var r = json['POSITION']['SEAT_ROW'];
+							var c = json['POSITION']['SEAT_COLUMN'];
+							if(patt == 1){
+								/*過去の情報確認画面へ*/
+								moveToSitPostion(b,r,c);
+							}else{
+								/*着席位置表示画面へ*/
+								moveTotodaySitPostion(stid,b,r,c);
+							}
 						}
-					}
+		        	}
 		         },
 		         error: function(){
 		        	 alert("接続タイムアウトしました．");
@@ -106,6 +114,17 @@ $(document).ready(function() {
     function moveToSitPostion(b,r,c){
     	$(".positionPastFieald").text(b+"群 "+r+"行 - "+c+"列");
        $.mobile.changePage(("#sitPostion"),{
+			type:"POST",
+			reverse: false,
+			changeHash: false
+		});
+	}
+    
+    /**授業終了知らせる画面へ飛ぶ**/
+    function moveToEndClass($subjectName,$endData){
+    	$(".endClassDate").text($endData+"の");
+    	$(".endClassSubjectName").text($subjectName+"は,");
+       $.mobile.changePage(("#endClass"),{
 			type:"POST",
 			reverse: false,
 			changeHash: false
