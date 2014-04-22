@@ -7,6 +7,8 @@ $(function(){
 	//var rootPath = '../../../cmsm/module/php/base/teacher';
 	/*ゲットパラメータ取得*/
 	var scheduleId = getUrlVars()['s'];
+	var attendeeList = null;
+	
 	nowActionState();
 	$('.tabbox:first').show();
 	$('#tab li:first').addClass('active');
@@ -126,6 +128,7 @@ $(function(){
 						var ac = json['ATTENDEE'].length;
 						$(".tab2TodayAttendeeCount").text("本日の出席者数 : "+ac+" 人");
 						/*出席者情報をリストビューに加える	*/
+						attendeeList = json['ATTENDEE'];
 						addAtendListView(json['ATTENDEE']);
 						/*着席状況を描く*/
 						addSitInfo(json['ROOM']);
@@ -151,6 +154,7 @@ $(function(){
 								callEndSuccessUI(st,et);
 							}
 							/*出席者情報をリストビューに加える	*/
+							attendeeList = json['ATTENDEE'];
 							addAtendListView(json['ATTENDEE']);
 							/*着席状況を描く*/
 							addSitInfo(json['ROOM']);
@@ -303,6 +307,32 @@ $(function(){
         </dl>
          etc ...*/
 	}
+	/*==========================================================
+	[出席者一覧の検索window]
+	==========================================================*/
+	$('#search-basic').live("keypress", function(e){
+		if(e.which == 13){
+			//var stid = String.fromCharCode(e.which);
+			var stid = $('#search-basic').val();
+			if(stid.length == 6){
+				for(var i in attendeeList){
+					if(attendeeList[i].STUDENT_ID == stid.toUpperCase()){
+						var d = attendeeList[i].SEAT_BLOCK_NAME+"群 "
+						+attendeeList[i].SEAT_ROW+"行 - "
+						+attendeeList[i].SEAT_COLUMN+"列 "
+						+attendeeList[i].STUDENT_ID +" "
+						+attendeeList[i].FULL_NAME;
+						alert(d);
+					}
+				}
+			}else{
+				alert("入力された学籍番号が正しくありません.");
+			}
+			
+			
+	    	
+		}
+	})
 	/*==========================================================
 [座席を描く]
 ==========================================================*/

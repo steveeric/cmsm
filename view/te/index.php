@@ -52,6 +52,8 @@
 		<div id="tab2" class="tabbox">
 			<p>出席者一覧</p>
 			<p class="tab2TodayAttendeeCount"></p>
+			<label for="search-basic">学生検索:</label>
+			<input type="email" name="search" id="search-basic" value="" placeholder="学籍番号を入力してください." />
 			<!-- #tab2 -->
 			<div class="tableview-wrapper">
 				<h2 id="toc-a" class="dummy-header"></h2>
