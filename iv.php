@@ -26,7 +26,6 @@ if ($l != 20) {
 	
 	/**/
 	$key = $p->distributPhoneKey ();
-	$key = 1;
 	/* 現在のアクセス時間を取得する */
 	$nowTime = $t->getNowDetaileTime ();
 	/* アクセス時間を取得 */
