@@ -24,10 +24,17 @@ if ($l != 20) {
 	/* 乱数を元に現在の画面情報を取得する */
 	/*$contentResult = $con -> getNowScreenContent($randomNo);*/
 	
-	/**/
+	/*テスト時にはKEYを変更してください.*/
 	$key = $p->distributPhoneKey ();
+	/**/
+	
 	/* 現在のアクセス時間を取得する */
 	$nowTime = $t->getNowDetaileTime ();
+	
+	/*アクセス時間を記録*/
+	$recordSQL = "UPDATE `MOBILE_SCREEN` SET LAST_ACCESS_TIME = '".$nowTime."',`SMART_PHONE_FLAG` = '".$key."',USER_AGENT='".$ua."'  WHERE `RANDOM_NO` = '".$randomNo."';";
+	$con->execute($recordSQL);
+
 	/* アクセス時間を取得 */
 	$tt = $t->getTimeTableIdTime ();
 	
