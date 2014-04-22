@@ -425,7 +425,7 @@ class DB {
 	/**
 	 * グルーピングや座席指定ﾃﾞ使用する座席使用情報を初期化する**
 	 */
-	public function initSeatChangeUsing($roomId, $contentId, $attendeeId, $scheduleId, $studentId, $attTime) {
+	public function initSeatChangeUsing($roomId, $contentId, $attendeeId, $scheduleId, $studentId, $attTime, $randomNo) {
 		$data = null;
 		try {
 			$pdo = new PDO ( $this->dsn, $this->user, $this->pass, array (
@@ -436,10 +436,35 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
 					PDO::ATTR_EMULATE_PREPARES => false 
 			) );
-			
-			$initSeatChangeSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '0' WHERE `ROOM_ID` = ? AND `SCREEN_CONTENT_ID` = ? ";
-			$stmt1 = $pdo->prepare ( $initSeatChangeSQL );
-			$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
+			/* 初期化するのでその旨を記録 */
+			$initSQL = "INSERT INTO `LAST_USE_CHANGING` (`SCHEDULE_ID` ,`ROOM_ID` ,`RANDOM_NO` ,`ACCESS_TIME`) VALUES ('" . $scheduleId . "', '" . $roomId . "', '" . $randomNo . "', '" . $attTime . "')";
+			$res = $this->execute ( $initSQL );
+			if ($res) {
+				try {
+					$pdo->setAttribute ( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+					// トランザクション処理を開始
+					$pdo->beginTransaction ();
+					/* 座席の使用状況を初期化 */
+					$sql = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '0' WHERE `ROOM_ID` = ? AND `SCREEN_CONTENT_ID` = ? ";
+					$sth = $pdo->prepare ( $sql );
+					$sth->bindValue ( 1, $roomId, PDO::PARAM_STR );
+					$sth->bindValue ( 2, $contentId, PDO::PARAM_STR );
+					$sth->execute ();
+					// $initSeatChangeSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '0' WHERE `ROOM_ID` = '" . $roomId . "' AND `SCREEN_CONTENT_ID` = '" . $contentId . "' ";
+					// $initResult = $this->execute ( $initSeatChangeSQL );
+					
+					$checkSQL = "SELECT RANDOM_NO FROM `LAST_USE_CHANGING` WHERE `SCHEDULE_ID` LIKE '" . $scheduleId . "'";
+					$checkResult = $this->query ( $checkSQL );
+					$selectRandom = $checkResult [0] ['RANDOM_NO'];
+					if (strcasecmp ( $randomNo, $selectRandom ) == 0) {
+						// コミット
+						$pdo->commit ();
+					} else {
+						// ロールバック
+						$pdo->rollBack ();
+					}
+					/* 自分の着座位置を取得 */
+					/*$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
 					FROM `SEAT_CHANGE_MST` SC, SEAT_MST SE, SEAT_BLOCK_MST SB
 					WHERE SC.SEAT_ID = SE.SEAT_ID
 					AND SE.SEAT_BLOCK_ID = SB.SEAT_BLOCK_ID
@@ -448,47 +473,33 @@ class DB {
 					AND SC.SCREEN_CONTENT_ID = '" . $contentId . "'
 					ORDER BY SC.`SELECTION_ORDER` ASC
 					LIMIT 1 FOR UPDATE";
-			
-			/*
-			 * $usingSeatSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '1' WHERE `ROOM_ID` = ? AND `SCREEN_CONTENT_ID` = ? AND `SEAT_ID` = ? AND `USING` = 0 "; $stmt3 = $pdo->prepare ( $usingSeatSQL );
-			 */
-			
-			// トランザクション処理を開始
-			// $data = $pdo->beginTransaction ();
-			// try {
-			// $initSeatChangeSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '0' WHERE `ROOM_ID` = '" . $roomId . "' AND `SCREEN_CONTENT_ID` = '" . $contentId . "' ";
-			// $stmt1 = $pdo->prepare ( $initSeatChangeSQL );
-			// 座席使用状態を初期化
-			$stmt1->bindValue ( 1, $roomId, PDO::PARAM_STR );
-			$stmt1->bindValue ( 2, $contentId, PDO::PARAM_STR );
-			$stmt1->execute ();
-			
-			$data = $this->query ( $selSeatSQL );
-			$seatId = $data [0] ['SEAT_ID'];
+					
+					$data = $this->query ( $selSeatSQL );
+					$seatId = $data [0] ['SEAT_ID'];
+					
+					$preAttSQL = "INSERT INTO `ATTENDEE` (`ATTEND_ID` ,`SCHEDULE_ID` ,`STUDENT_ID` ,`SEAT_ID` ,`ATTEND_TIME`)VALUES ('" . $attendeeId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $attTime . "')";
+					$stmt = $pdo->prepare ( $preAttSQL );
+					$stmt->execute ();
+						
+					$usingSeatSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '1' WHERE `ROOM_ID` = '" . $roomId . "' AND `SCREEN_CONTENT_ID` = '" . $contentId . "' AND `SEAT_ID` = '" . $seatId . "'";
+					$stmt3 = $pdo->prepare ( $usingSeatSQL );
+					$stmt3->execute ();*/
 
-			$preAttSQL = "INSERT INTO `ATTENDEE` (`ATTEND_ID` ,`SCHEDULE_ID` ,`STUDENT_ID` ,`SEAT_ID` ,`ATTEND_TIME`)VALUES ('" . $attendeeId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $attTime . "')";
-			$stmt = $pdo->prepare ( $preAttSQL );
-			$stmt->execute ();
-			
-			$usingSeatSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '1' WHERE `ROOM_ID` = '".$roomId."' AND `SCREEN_CONTENT_ID` = '".$contentId."' AND `SEAT_ID` = '".$seatId."'";
-			$stmt3 = $pdo->prepare ( $usingSeatSQL );
-			$stmt3->execute ();
-			
-			// コミット
-			// $stmt ->commit ();
-			// $stmt1 ->commit ();
-			/* $stmt3 ->commit (); */
-			// } catch ( PDOException $e ) {
-			// $stmt->rollBack ();
-			// $stmt1->rollBack ();
-			// $stmt3->rollBack ();
-			// throw $e;
-			// }
+				} catch ( PDOException $e ) {
+					$pdo->rollBack ();
+					throw $e;
+				}
+			} else {
+				/* LAST_USE_CHANGEINGにinsertできなかった. */
+			}
 		} catch ( PDOException $e ) {
 			echo 'Connection failed:' . $e->getMessage ();
 			// errorLog ( $sql, $e->getMessage () );
 			exit ();
 		}
+		$pdo = null;
+		/* 座席を割り当てる */
+		$data = $this->assignmentSeat ( $roomId, $contentId, $attendeeId, $scheduleId, $studentId, $attTime );
 		return $data;
 	}
 	/**
@@ -508,38 +519,39 @@ class DB {
 			) );
 			
 			try {
-  			//トランザクションを開始する。オートコミットがオフになる
-  			$pdo->beginTransaction();
-			/* 使用できる座席を抽出する */
-			$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
+				$pdo->setAttribute ( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+				// トランザクションを開始する。オートコミットがオフになる
+				$pdo->beginTransaction ();
+				/* 使用できる座席を抽出する */
+				$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
 					FROM `SEAT_CHANGE_MST` SC, SEAT_MST SE, SEAT_BLOCK_MST SB
 					WHERE SC.SEAT_ID = SE.SEAT_ID
 					AND SE.SEAT_BLOCK_ID = SB.SEAT_BLOCK_ID
 					AND SC.`USING` = 0
 					AND SC.ROOM_ID = '" . $roomId . "'
 					AND SC.SCREEN_CONTENT_ID = '" . $contentId . "' 
-                                        ORDER BY SC.`SELECTION_ORDER` ASC
+                  ORDER BY SC.`SELECTION_ORDER` ASC
 					LIMIT 1 FOR UPDATE";
-			$data = $this->query ( $selSeatSQL );
-			$seatId = $data [0] ['SEAT_ID'];
-			
-			/* 出席 */
-			$preAttSQL = "INSERT INTO `ATTENDEE` (`ATTEND_ID` ,`SCHEDULE_ID` ,`STUDENT_ID` ,`SEAT_ID` ,`ATTEND_TIME`)VALUES ('" . $attendeeId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $attTime . "')";
-			$stmt = $pdo->prepare ( $preAttSQL );
-			$stmt->execute ();
-			
-			/* 座席を使用状態に */
-			$usingSeatSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '1' WHERE `ROOM_ID` = '".$roomId."' AND `SCREEN_CONTENT_ID` = '".$contentId."' AND `SEAT_ID` = '".$seatId."'";
-			$stmt3 = $pdo->prepare ( $usingSeatSQL );
-			$stmt3->execute ();
-		
-		        //変更をコミットする
-                        $pdo->commit();
-                        }catch(PDOException $e){
-                         //変更をロールバックする
-                         $pdo->rollBack();
-                         echo 'ERROR:' . $e->getMessage();
-                        }
+				$data = $this->query ( $selSeatSQL );
+				$seatId = $data [0] ['SEAT_ID'];
+				
+				/* 出席 */
+				$preAttSQL = "INSERT INTO `ATTENDEE` (`ATTEND_ID` ,`SCHEDULE_ID` ,`STUDENT_ID` ,`SEAT_ID` ,`ATTEND_TIME`)VALUES ('" . $attendeeId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $attTime . "')";
+				$stmt = $pdo->prepare ( $preAttSQL );
+				$stmt->execute ();
+				
+				/* 座席を使用状態に */
+				$usingSeatSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '1' WHERE `ROOM_ID` = '" . $roomId . "' AND `SCREEN_CONTENT_ID` = '" . $contentId . "' AND `SEAT_ID` = '" . $seatId . "'";
+				$stmt3 = $pdo->prepare ( $usingSeatSQL );
+				$stmt3->execute ();
+				
+				// 変更をコミットする
+				$pdo->commit ();
+			} catch ( PDOException $e ) {
+				// 変更をロールバックする
+				$pdo->rollBack ();
+				echo 'ERROR:' . $e->getMessage ();
+			}
 		} catch ( PDOException $e ) {
 			echo 'Connection failed:' . $e->getMessage ();
 			// errorLog ( $sql, $e->getMessage () );

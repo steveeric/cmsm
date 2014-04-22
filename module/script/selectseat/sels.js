@@ -78,7 +78,7 @@ $(document).ready(function() {
 	/*画面情報再読み込み*/
     $("#reloadBtn").click(function(){
     	moveToFirst();
-    	getGPParam();
+    	getSELParam();
   	});
     
 	/*==========================================================

@@ -102,7 +102,8 @@ AND A.SCHEDULE_ID = '" . $scheduleId . "'";
 			}
 		} else {
 			/* この授業で自分が初めのアクセス */
-			$sql = "SELECT ATTEND_ID FROM `ATTENDEE` WHERE `SCHEDULE_ID` LIKE '" . $scheduleId . "'";
+			//$sql = "SELECT ATTEND_ID FROM `ATTENDEE` WHERE `SCHEDULE_ID` LIKE '" . $scheduleId . "'";
+			$sql = "SELECT SCHEDULE_ID FROM `LAST_USE_CHANGING` WHERE `SCHEDULE_ID` LIKE '".$scheduleId."'";
 			$otherResult = $con->query ( $sql );
 			$stResul = $con->getStudentId ( $randomNo );
 			$studentId = $stResul [0] ['STUDENT_ID'];
@@ -133,7 +134,7 @@ AND A.SCHEDULE_ID = '" . $scheduleId . "'";
 				}
 			} else {
 				/* この授業始めてなので座席 */
-				$data = $con->initSeatChangeUsing ( $roomId, $content, $attendeeId, $scheduleId, $studentId, $attendTime );
+				$data = $con->initSeatChangeUsing ( $roomId, $content, $attendeeId, $scheduleId, $studentId, $attendTime, $randomNo);
 				if (is_null ( $data )) {
 					/* 座席がない */
 					$notSeat = 1;

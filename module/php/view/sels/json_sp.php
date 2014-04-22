@@ -5,6 +5,8 @@
  * ***/
 $scheduleId = $_POST ['s'];
 $randomNo = $_POST ['r'];
+//$scheduleId = $_GET ['s'];
+//$randomNo = $_GET ['r'];
 
 $content="sels";
 
