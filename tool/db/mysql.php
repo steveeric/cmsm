@@ -437,9 +437,9 @@ class DB {
 					PDO::ATTR_EMULATE_PREPARES => false 
 			) );
 			/* 初期化するのでその旨を記録 */
-			$initSQL = "INSERT INTO `LAST_USE_CHANGING` (`SCHEDULE_ID` ,`ROOM_ID` ,`SCREEN_CONTENT_ID` ,`RANDOM_NO` ,`ACCESS_TIME`) VALUES ('".$scheduleId."', '".$roomId."', '".$contentId."', '".$randomNo."', '" . $attTime . "')";
+			$initSQL = "INSERT INTO `LAST_USE_CHANGING` (`SCHEDULE_ID` ,`ROOM_ID` ,`SCREEN_CONTENT_ID` ,`RANDOM_NO` ,`ACCESS_TIME`) VALUES ('" . $scheduleId . "', '" . $roomId . "', '" . $contentId . "', '" . $randomNo . "', '" . $attTime . "')";
 			$res = $this->execute ( $initSQL );
-			$callSQL = "INSERT INTO `CALL_THE_ROLL` (`SCHEDULE_ID` ,`CALL_START_TIME` ,`CALL_END_TIME` ) VALUES ('".$scheduleId."', '".$attTime."', NULL)";
+			$callSQL = "INSERT INTO `CALL_THE_ROLL` (`SCHEDULE_ID` ,`CALL_START_TIME` ,`CALL_END_TIME` ) VALUES ('" . $scheduleId . "', '" . $attTime . "', NULL)";
 			$res = $this->execute ( $callSQL );
 			if ($res) {
 				try {
@@ -524,6 +524,8 @@ class DB {
 				$pdo->setAttribute ( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 				// トランザクションを開始する。オートコミットがオフになる
 				$pdo->beginTransaction ();
+				
+				$seatId = 0;
 				/* 使用できる座席を抽出する */
 				$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
 					FROM `SEAT_CHANGE_MST` SC, SEAT_MST SE, SEAT_BLOCK_MST SB
@@ -531,11 +533,46 @@ class DB {
 					AND SE.SEAT_BLOCK_ID = SB.SEAT_BLOCK_ID
 					AND SC.`USING` = 0
 					AND SC.ROOM_ID = '" . $roomId . "'
-					AND SC.SCREEN_CONTENT_ID = '" . $contentId . "' 
+					AND SC.SCREEN_CONTENT_ID = '" . $contentId . "'
                   ORDER BY SC.`SELECTION_ORDER` ASC
 					LIMIT 1 FOR UPDATE";
-				$data = $this->query ( $selSeatSQL );
-				$seatId = $data [0] ['SEAT_ID'];
+				if ($scheduleId == '0001032804C1020140001') {
+					// 2014年04月28日の月曜3限用です.
+					// ESL配布のためのプログラムになります.
+					//一度でも休んだことがある人は､最後尾から詰める仕様になっています.
+					
+					//SUBJECT_IDを取得
+					$subSQL = "SELECT SUBJECT_ID FROM `SYLLABUS_MST` WHERE `SCHEDULE_ID` LIKE '".$scheduleId."'";
+					$subData = $this->query ( $subSQL );
+					$subId = $subData[0]['SUBJECT_ID'];
+					$abSQL = "SELECT ABSENT_ID FROM `ABSENTEE` AB, SYLLABUS_MST SY, SUBJECT_MST SU 
+							WHERE AB.SCHEDULE_ID = SY.SCHEDULE_ID 
+							AND SU.SUBJECT_ID = SY.SUBJECT_ID 
+							AND SU.SUBJECT_ID = '" . $subId . "' 
+							AND AB.STUDENT_ID = '" . $studentId . "'";
+					$abData = $this->query ( $abSQL );
+					if (count ( $abData ) > 0) {
+						// 一回でも休んだことがある.
+						$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
+										FROM `SEAT_CHANGE_MST` SC, SEAT_MST SE, SEAT_BLOCK_MST SB
+										WHERE SC.SEAT_ID = SE.SEAT_ID
+										AND SE.SEAT_BLOCK_ID = SB.SEAT_BLOCK_ID
+										AND SC.`USING` =0
+										AND SC.ROOM_ID = '".$roomId."'
+										AND SC.SCREEN_CONTENT_ID = '".$contentId."'
+										ORDER BY SC.`SELECTION_ORDER` DESC
+										LIMIT 1 FOR UPDATE";
+						$data = $this->query ( $selSeatSQL );
+						$seatId = $data [0] ['SEAT_ID'];
+					} else {
+						//一回も休んだことがない
+						$data = $this->query ( $selSeatSQL );
+						$seatId = $data [0] ['SEAT_ID'];
+					}
+				} else {
+					$data = $this->query ( $selSeatSQL );
+					$seatId = $data [0] ['SEAT_ID'];
+				}
 				
 				/* 出席 */
 				$preAttSQL = "INSERT INTO `ATTENDEE` (`ATTEND_ID` ,`SCHEDULE_ID` ,`STUDENT_ID` ,`SEAT_ID` ,`ATTEND_TIME`)VALUES ('" . $attendeeId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $attTime . "')";
