@@ -536,6 +536,7 @@ class DB {
 					AND SC.SCREEN_CONTENT_ID = '" . $contentId . "'
                   ORDER BY SC.`SELECTION_ORDER` ASC
 					LIMIT 1 FOR UPDATE";
+				
 				if ($scheduleId == '0001032804C1020140001') {
 					// 2014年04月28日の月曜3限用です.
 					// ESL配布のためのプログラムになります.
@@ -553,14 +554,14 @@ class DB {
 					$abData = $this->query ( $abSQL );
 					if (count ( $abData ) > 0) {
 						// 一回でも休んだことがある.
-						$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
-										FROM `SEAT_CHANGE_MST` SC, SEAT_MST SE, SEAT_BLOCK_MST SB
-										WHERE SC.SEAT_ID = SE.SEAT_ID
-										AND SE.SEAT_BLOCK_ID = SB.SEAT_BLOCK_ID
-										AND SC.`USING` =0
-										AND SC.ROOM_ID = '".$roomId."'
-										AND SC.SCREEN_CONTENT_ID = '".$contentId."'
-										ORDER BY SC.`SELECTION_ORDER` DESC
+						$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN 
+										FROM `SEAT_CHANGE_MST` SC, SEAT_MST SE, SEAT_BLOCK_MST SB 
+										WHERE SC.SEAT_ID = SE.SEAT_ID 
+										AND SE.SEAT_BLOCK_ID = SB.SEAT_BLOCK_ID 
+										AND SC.`USING` = 0 
+										AND SC.ROOM_ID = '".$roomId."' 
+										AND SC.SCREEN_CONTENT_ID = '".$contentId."' 
+										ORDER BY SC.`SELECTION_ORDER` DESC 
 										LIMIT 1 FOR UPDATE";
 						$data = $this->query ( $selSeatSQL );
 						$seatId = $data [0] ['SEAT_ID'];
