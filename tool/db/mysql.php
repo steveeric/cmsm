@@ -439,6 +439,8 @@ class DB {
 			/* 初期化するのでその旨を記録 */
 			$initSQL = "INSERT INTO `LAST_USE_CHANGING` (`SCHEDULE_ID` ,`ROOM_ID` ,`SCREEN_CONTENT_ID` ,`RANDOM_NO` ,`ACCESS_TIME`) VALUES ('".$scheduleId."', '".$roomId."', '".$contentId."', '".$randomNo."', '" . $attTime . "')";
 			$res = $this->execute ( $initSQL );
+			$callSQL = "INSERT INTO `CALL_THE_ROLL` (`SCHEDULE_ID` ,`CALL_START_TIME` ,`CALL_END_TIME` ) VALUES ('".$scheduleId."', '".$attTime."', NULL)";
+			$res = $this->execute ( $callSQL );
 			if ($res) {
 				try {
 					$pdo->setAttribute ( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
