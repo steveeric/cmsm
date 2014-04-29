@@ -68,12 +68,13 @@ if (count ( $actionResult ) == 0) {
 		);
 	
 		$sbn = $sbbResult [$i] ['SEAT_BLOCK_NAME'];
+		
+		//このブロックに何人座れるかを出す
+		
 		$seatSQL = "SELECT SEAT_ID, SEAT_ROW, SEAT_COLUMN
 			FROM `SEAT_MST`
 			WHERE `SEAT_BLOCK_ID` = '" . $sbid . "'
 			ORDER BY `SEAT_ROW` , SEAT_COLUMN ASC ";
-		// $seatList = $con->jsonQuery ( $seatSQL );
-	
 		$sResult = $con->query ( $seatSQL );
 		for($j = 0; $j < count ( $sResult ); $j ++) {
 			$seatId = $sResult [$j] ['SEAT_ID'];

@@ -11,6 +11,8 @@
 <script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
 <script
 	src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+	<script
+	src="../../tool/js/libs/jCanvas.js"></script>
 <script>
 	$(document).bind("mobileinit", function() {
 		$.mobile.defaultTransition = "flip";
@@ -61,8 +63,7 @@
 			</div>
 		</div>
 		<div id="tab3" class="tabbox">
-			<p>座席</p>
-			<div id="sit-content">
+		<div class="seatView" id="seatViewid"></div>
 				<!-- #tab3 -->
 			</div>
 			<div id="tab4" class="tabbox">

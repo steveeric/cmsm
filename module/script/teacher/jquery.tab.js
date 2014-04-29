@@ -1,4 +1,12 @@
 $(function(){
+
+	//画面サイズ取得
+	var screenWidth = window.innerWidth ? window.innerWidth: $(window).width() + 500;
+	var screenHeight = window.innerHeight ? window.innerHeight: $(window).height();// + 1000;
+	/*var g = new Graphics();
+	g.drawLine(100,50,200,70);
+	g.paint();*/
+
 	/***
 	 * 
 	 * 出席調査終了ボタン不具合アリ
@@ -8,7 +16,7 @@ $(function(){
 	/*ゲットパラメータ取得*/
 	var scheduleId = getUrlVars()['s'];
 	var attendeeList = null;
-	
+
 	nowActionState();
 	$('.tabbox:first').show();
 	$('#tab li:first').addClass('active');
@@ -171,7 +179,7 @@ $(function(){
 	 * 
 	 * 出席調査通信
 	 * situation
-	 * 0 : 出席調査開始
+	 * 0 : 出席調査開始http://localhost/cmsm/view/te/index.php?s=0001022304KK020140002
 	 * 1 : 出席調査終了
 	 * **/
 	function doAccessCall(situation){
@@ -328,49 +336,93 @@ $(function(){
 			}else{
 				alert("入力された学籍番号が正しくありません.");
 			}
-			
-			
-	    	
+
+
+
 		}
 	})
 	/*==========================================================
 [座席を描く]
 ==========================================================*/
 	function addSitInfo(at){
+		console.log(at);
 		var sbrc = at['LAYOUT']['BLOCK_LAYOUT']['SEAT_BLOCK_ROW_COUNT'];
 		var sbcc = at['LAYOUT']['BLOCK_LAYOUT']['SEAT_BLOCK_COLUMN_COUNT'];
-		var bb = at['DETAILE_INFO'];
-		for(var i=sbrc;i>0;i--){
-			$("#sit-content").append("<tr>");
-			for(var j=1;j<=sbcc;j++){
-				for(var k in bb){ 
-					if(bb[k].BLOCK.SEAT_BLOCK_ROW == i && bb[k].BLOCK.SEAT_BLOCK_COLUMN == j){
-						/*SEAT_BLOCK_IDから*/
-						/*var sc = at['LAYOUT']['SEAT_LAYOUT'];
-						for(var l in sc){
-							if(sc[l].SEAT_BLOCK_ID == bb[k].BLOCK.SEAT_BLOCK_ID){
-								//console.log(bb[k].BLOCK.SEAT_BLOCK_NAME+":"+sc[l].SEAT_ROW_COUNT+"-"+sc[l].SEAT_COLUMN_COUNT);
-								//$("#sit-content").append("<td>"+bb[k].BLOCK.SEAT_BLOCK_NAME+"</td>");
-								var se = bb[k].BLOCK.SEAT;
+		//alert(sbrc+":"+sbcc);
+		var blockMarginWidth = 15;
+		var blockMarginHeight = 0;
+		//一つのブロックサイズを算出する
+		var seatBlockViewWidth = screenWidth / sbcc ;
+		var seatBlockViewHeight = screenHeight / sbrc;
+		var barMargin = 45;
+		
+		var beforeBlockId = 0;
+		var top = barMargin;		
+		var left = 0;
+		var blockRowChangeCount = 0;
+		var psbr = 0;
+		var psbc = 0;
+		//alert(seatBlockViewWidth+":"+seatBlockViewHeight);
+		for(var i in at['LAYOUT']['SEAT_LAYOUT']){
+			var nowSeatBlockId = at['LAYOUT']['SEAT_LAYOUT'][i].SEAT_BLOCK_ID;
+			var nowSeatBlockInSeatColumnMaxCount = at['LAYOUT']['SEAT_LAYOUT'][i].SEAT_COLUMN_COUNT;
+			var nowSeatBlockInSeatMaxRow = at['LAYOUT']['SEAT_LAYOUT'][i].SEAT_ROW_COUNT;
+			var seatSizeWidth = seatBlockViewWidth / nowSeatBlockInSeatColumnMaxCount;
+			var seatSizeHeight = seatBlockViewHeight / nowSeatBlockInSeatMaxRow;
+			//alert(seatSizeWidth+";"+seatSizeHeight);
+			//alert(seatSizeWidth+":"+seatSizeHeight);
+			//console.log(nowSeatBlockId+":"+nowSeatBlockInSeatRow+":"+nowSeatBlockInSeatColumnCount);
+			//var pastSeatRow=0;
+			//var pastSeatColumn=0;
+			for(var j in at['DETAILE_INFO']){
+				if(at['DETAILE_INFO'][j].BLOCK.SEAT_BLOCK_ID == nowSeatBlockId){
+					var nowSeatBlockName = at['DETAILE_INFO'][j].BLOCK.SEAT_BLOCK_NAME;
+					var nowBlockSeatRow = at['DETAILE_INFO'][j].BLOCK.SEAT_BLOCK_ROW;
+					var nowBlockSeatColumn = at['DETAILE_INFO'][j].BLOCK.SEAT_BLOCK_COLUMN;
 
-								for(var e in se){
-									$("#sit-content").append("<tr>");
-									for(var r=1;r<=sc[l].SEAT_ROW_COUNT;r++){
-										for(var c=1;c<=sc[l].SEAT_COLUMN_COUNT;c++){
-											if(se[e].SEAT_ROW == r && se[e].SEAT_COLUMN==c){
-												$("#sit-content").append("<td>"+se[e].SEAT_ID+":"+se[e].SEAT_ROW+"-"+se[e].SEAT_COLUMN+"</td>");
-											}
-										}
-									}
-									$("#sit-content").append("</tr>");
-								}
-							}
+					//シートブロックを描く
+					if(psbr != nowBlockSeatRow){
+						//top = barMargin+((nowBlockSeatRow-1)*seatBlockViewHeight);
+						top = (barMargin + screenHeight) - seatBlockViewHeight*(nowBlockSeatRow);
+						//alert("screenHeight:"+screenHeight+",TOP:"+top+",seatBlockViewHeight:"+seatBlockViewHeight+"NOW_BLOCK_SEAT_ROW:"+nowBlockSeatRow);
+						psbr = nowBlockSeatRow;
+					}
+					if(psbc != nowBlockSeatColumn){
+						left = blockMarginHeight+(nowBlockSeatColumn-1)*seatBlockViewWidth;
+						if(nowBlockSeatColumn > 1 /*&& nowBlockSeatColumn < nowSeatBlockInSeatColumnMaxCount*/){
+							left = left + blockMarginWidth/3;
+							//alert("after"+left);
 						}
-					}*/
-						$("#sit-content").append("<td>111</td>");
+
+						psbc = nowBlockSeatColumn;
+					}
+					//alert(nowSeatBlockId+"  "+nowSeatBlockName+"  TOP:"+top+",LEFT:"+left);
+					//$("#seatViewid").append("<div style='position: absolute; top: "+(top)+"px; left:"+left+"px; width:"+(seatBlockViewWidth)+"px; height:"+seatBlockViewHeight+"px; background-color:#00DDFF;'>"+nowSeatBlockName+" "+nowBlockSeatRow+"行-"+nowBlockSeatColumn+"列"+"</div>");
+
+					//シートブロックを描く
+					//出席者塊をオブジェクトを出す
+					for(var k in at['DETAILE_INFO'][j].BLOCK.SEAT){
+						//console.log(nowSeatBlockName+":"+at['DETAILE_INFO'][j].BLOCK.SEAT[k].SEAT_ROW+"-"+at['DETAILE_INFO'][j].BLOCK.SEAT[k].SEAT_COLUMN);
+						//	top = (barMargin + screenHeight) - seatBlockViewHeight*(nowBlockSeatRow);
+						var nowSeatRow = at['DETAILE_INFO'][j].BLOCK.SEAT[k].SEAT_ROW;
+						var nowSeatColumn = at['DETAILE_INFO'][j].BLOCK.SEAT[k].SEAT_COLUMN;
+						var seatTop = top +seatBlockViewHeight - seatSizeHeight*nowSeatRow;
+						var seatLeft = left + (nowSeatColumn-1)*seatSizeWidth;
+						/*if(at['DETAILE_INFO'][j].BLOCK.SEAT_BLOCK_ID == 3 && nowSeatRow == 1){
+							console.log(nowSeatBlockName+" "+nowSeatRow+"行-"+nowSeatColumn+"列");
+						}*/
+
+						//$("#seatViewid").append("<div style='position: absolute; top: "+seatTop+"px; left:"+seatLeft+"px; width:"+(seatSizeWidth)+"px; height:"+seatSizeHeight+"px; background-color:#00DDFF;'>"+nowSeatBlockName+" "+nowSeatRow+"行-"+nowSeatColumn+"列"+"</div>");
+
+						if(at['DETAILE_INFO'][j].BLOCK.SEAT[k].ATTENDEE != null){
+							//console.log(at['DETAILE_INFO'][j].BLOCK.SEAT[k].SEAT_ID+" "+at['DETAILE_INFO'][j].BLOCK.SEAT[k].SEAT_ROW+"-"+at['DETAILE_INFO'][j].BLOCK.SEAT[k].SEAT_COLUMN+":"+at['DETAILE_INFO'][j].BLOCK.SEAT[k].ATTENDEE.STUDENT_ID);
+							$("#seatViewid").append("<div style='position: absolute; top: "+seatTop+"px; left:"+seatLeft+"px; width:"+(seatSizeWidth)+"px; height:"+seatSizeHeight+"px; background-color:#00DDFF;'>"+""+at['DETAILE_INFO'][j].BLOCK.SEAT[k].ATTENDEE.STUDENT_ID+"<BR>"+"<font size='1'>"+at['DETAILE_INFO'][j].BLOCK.SEAT[k].ATTENDEE.FULL_NAME+"</font></BR>"+"</div>");
+							//$("#seatViewid").append("<div style='position: absolute; top: "+seatTop+"px; left:"+seatLeft+"px; width:"+(seatSizeWidth)+"px; height:"+seatSizeHeight+"px; background-color:#00DDFF;'>"+""+at['DETAILE_INFO'][j].BLOCK.SEAT[k].ATTENDEE.STUDENT_ID+"<BR>"+at['DETAILE_INFO'][j].BLOCK.SEAT[k].ATTENDEE.FULL_NAME+"</BR>"+"</div>");
+						}else{
+							$("#seatViewid").append("<div style='position: absolute; top: "+seatTop+"px; left:"+seatLeft+"px; width:"+(seatSizeWidth)+"px; height:"+seatSizeHeight+"px; background-color:#A0A0A0;'></div>");
+						}
 					}
 				}
-				$("#sit-content").append("</tr>");
 			}
 		}
 	}
