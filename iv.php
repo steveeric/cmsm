@@ -26,15 +26,14 @@ if ($l != 20) {
 	
 	/*テスト時にはKEYを変更してください.*/
 	$key = $p->distributPhoneKey ();
-	/**/
 	
 	/* 現在のアクセス時間を取得する */
 	$nowTime = $t->getNowDetaileTime ();
 	
-	/*アクセス時間を記録*/
-	$recordSQL = "UPDATE `MOBILE_SCREEN` SET LAST_ACCESS_TIME = '".$nowTime."',`SMART_PHONE_FLAG` = '".$key."',USER_AGENT='".$ua."'  WHERE `RANDOM_NO` = '".$randomNo."';";
-	$con->execute($recordSQL);
-
+	/* アクセス時間を記録 */
+	$recordSQL = "UPDATE `MOBILE_SCREEN` SET LAST_ACCESS_TIME = '" . $nowTime . "',`SMART_PHONE_FLAG` = '" . $key . "',USER_AGENT='" . $ua . "'  WHERE `RANDOM_NO` = '" . $randomNo . "';";
+	$con->execute ( $recordSQL );
+	
 	/* アクセス時間を取得 */
 	$tt = $t->getTimeTableIdTime ();
 	
@@ -46,10 +45,10 @@ if ($l != 20) {
 	$timeZoneMini = date ( 'H:i:s', (strtotime ( $pretimeZoneMini ) - $miniTimeZone) );
 	if ($tt < $timeZoneMini) {
 		/* 1限開始前 */
-		doBeforeTheStartOfClasses($key);
+		doBeforeTheStartOfClasses ( $key );
 	} else if ($timeZoneMax < $tt) {
 		/* 今日の授業はすべて終了している */
-		doAfterTheStartOfClasses($key);
+		doAfterTheStartOfClasses ( $key );
 	} else {
 		/* 授業開講時間 */
 		$timeResult = $con->getNowTimeTableId ( $tt );
@@ -61,10 +60,11 @@ if ($l != 20) {
 		/**
 		 * アクセス時間と乱数を元に現在履修している科目があるかを割り出す*
 		 */
-		$sql = "SELECT S.SCHEDULE_ID, S.ACTION_ID
-			FROM `COURSE_REGISTRATION_MST` C, REGISTER_MST R, SYLLABUS_MST S
+		$sql = "SELECT S.SCHEDULE_ID, S.ACTION_ID, S.USE_ESL, R.DM_BARCODE_ID, SU.SUBJECT_NAME
+			FROM `COURSE_REGISTRATION_MST` C, REGISTER_MST R, SYLLABUS_MST S,SUBJECT_MST　SU
 			WHERE C.STUDENT_ID = R.STUDENT_ID
-			AND C.SUBJECT_ID = S.SUBJECT_ID
+			AND C.SUBJECT_ID = S.SUBJECT_ID 
+			AND S.SUBJECT_ID　=　SU.SUBJECT_ID 
 			AND S.TIMETABLE_ID = '" . $timeTableId . "'
 			AND S.YEAR = '" . $y . "'
 			AND S.MONTH = '" . $m . "'
@@ -75,6 +75,10 @@ if ($l != 20) {
 			/* 履修科目があれば */
 			$aId = $result [0] ['ACTION_ID'];
 			$scheduleId = $result [0] ['SCHEDULE_ID'];
+			$useESL = $result [0] ['USE_ESL'];
+			$dmBarcodeId =　null;
+			$dmBarcodeId =　$result [0] ['DM_BARCODE_ID'];
+			$subjectName =　$result [0] ['SUBJECT_NAME'];
 			if ($aId == 3) {
 				/* 座席指定 */
 				$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'sels',SCHEDULE_ID = '" . $scheduleId . "'
@@ -96,7 +100,7 @@ if ($l != 20) {
 			$contentResult = $con->getNowScreenContentDetaile ( $nowTime, $randomNo );
 			if (count ( $contentResult ) == 1) {
 				/* 携帯キーを取得 */
-				//$key = $p->distributPhoneKey ();
+				// $key = $p->distributPhoneKey ();
 				$contentId = $contentResult [0] ['NOW_SCREEN_CONTENT_ID'];
 				$registTime = $contentResult [0] ['REGISTER_TIME'];
 				$nowDate = $t->getNowDate ();
@@ -111,28 +115,48 @@ if ($l != 20) {
 				 * 必ず0にしておいてください．
 				 * **
 				 */
+				
+				/**/
+				$nowDateESL =　$time ->getNowDate();
+				$waitTime =　"12時30分";
+				/**/
+				
 				if ($key == 0) {
 					/* ガラケー */
 					$gpth = $a->getGalapagosPhonePath ();
-					if ($diff == 0) {
-						/* 登録から一週間以内 */
-						$url = $gpth . "/" . $contentId . "/" . $contentId . $extension;
-						doPauseGPAcessSite ( $url, $randomNo, $scheduleId );
+					/* ESLを使うかをチェックする */
+					/*ESLが登録されているかをチェックする*/
+					if ($useESL == 1 &&　$dmBarcodeId != null) {
+						/* ESLを使う */
+						doUseESLGP($nowDateESL,$subjectName,$waitTime);
 					} else {
-						$url = $gpth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
-						doAccessSite ( $url );
+						if ($diff == 0) {
+							/* 登録から一週間以内 */
+							$url = $gpth . "/" . $contentId . "/" . $contentId . $extension;
+							doPauseGPAcessSite ( $url, $randomNo, $scheduleId );
+						} else {
+							$url = $gpth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
+							doAccessSite ( $url );
+						}
 					}
 				} else {
 					$spth = $a->getSmartPhonePath ();
-					if ($diff == 0) {
-						/* 登録から一週間以内 */
-						$url = $spth . "/" . $contentId . "/" . $contentId . $extension;
-						doPauseSPAcessSite ( $url, $randomNo, $scheduleId );
+					/* ESLを使うかをチェックする */
+					/*ESLが登録されているかをチェックする*/
+					if ($useESL == 1 &&　$dmBarcodeId != null) {
+						/* ESLを使う */
+						doUseESLSPS($nowDateESL,$subjectName,$waitTime);
 					} else {
-						/* スマホ */
-						$spth = $a->getSmartPhonePath ();
-						$url = $spth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
-						doAccessSite ( $url );
+						if ($diff == 0) {
+							/* 登録から一週間以内 */
+							$url = $spth . "/" . $contentId . "/" . $contentId . $extension;
+							doPauseSPAcessSite ( $url, $randomNo, $scheduleId );
+						} else {
+							/* スマホ */
+							$spth = $a->getSmartPhonePath ();
+							$url = $spth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
+							doAccessSite ( $url );
+						}
 					}
 				}
 			} else {
@@ -150,7 +174,7 @@ if ($l != 20) {
 			}
 		} else {
 			/* 現在の時間帯に履修科目がない */
-			doNotClasses($key);
+			doNotClasses ( $key );
 		}
 	}
 }
@@ -190,12 +214,12 @@ function doAccessSite($url) {
  * *
  */
 function doBeforeTheStartOfClasses($k) {
-	if($k == 1){
-		/*スマートフォン*/
-		doSPBeforeTheStartOfClasses();
-	}else{
-		/*ガラパゴス*/
-		doGPBeforeTheStartOfClasses();
+	if ($k == 1) {
+		/* スマートフォン */
+		doSPBeforeTheStartOfClasses ();
+	} else {
+		/* ガラパゴス */
+		doGPBeforeTheStartOfClasses ();
 	}
 }
 // ガラパゴスフォン用
@@ -222,7 +246,7 @@ EOT;
 }
 // スマートフォン用
 function doSPBeforeTheStartOfClasses() {
-	spHeadder("beforeTheStartOfClasses");
+	spHeadder ( "beforeTheStartOfClasses" );
 	echo <<<EOT
 <body>
 	<div data-role="page" id="first" data-theme="b">
@@ -238,7 +262,7 @@ function doSPBeforeTheStartOfClasses() {
 	</div>
 	<!--content end-->
 EOT;
-	spFooter();
+	spFooter ();
 }
 
 /**
@@ -249,18 +273,18 @@ EOT;
  * *
  */
 function doNotClasses($k) {
-	if($k == 1){
-		/*スマートフォン*/
-		doNotSPClasses();
-	}else{
-		/*ガラパゴス*/
-		doNotGPClasses();
+	if ($k == 1) {
+		/* スマートフォン */
+		doNotSPClasses ();
+	} else {
+		/* ガラパゴス */
+		doNotGPClasses ();
 	}
 }
 
-//スマートフォン
-function doNotSPClasses(){
-	spHeadder("doNotCourseClasses");
+// スマートフォン
+function doNotSPClasses() {
+	spHeadder ( "doNotCourseClasses" );
 	echo <<<EOT
 <body>
 	<div data-role="page" id="first" data-theme="b">
@@ -272,10 +296,9 @@ function doNotSPClasses(){
 		</div>
 	<!--content end-->
 EOT;
-	spFooter();
+	spFooter ();
 }
-
-function spHeadder($title){
+function spHeadder($title) {
 	echo <<<EOT
 <!DOCTYPE HTML>
 <html>
@@ -296,8 +319,7 @@ $(document).ready(function() {
 </script>
 EOT;
 }
-
-function spFooter(){
+function spFooter() {
 	echo <<<EOT
 <div data-role="footer" style="text-align: center" data-position="fixed">
 		<h4>&copy; 2014 Primary Meta Works</h4>
@@ -310,8 +332,8 @@ function spFooter(){
 EOT;
 }
 
-//ガラパゴズ用
-function doNotGPClasses(){
+// ガラパゴズ用
+function doNotGPClasses() {
 	echo <<<EOT
 <html>
 <head>
@@ -339,17 +361,16 @@ EOT;
  * *
  */
 function doAfterTheStartOfClasses($k) {
-	if($k == 1){
-		/*スマートフォン*/
-		doSPAfterTheStartOfClasses();
-	}else{
-		/*ガラパゴス*/
-		doGPAfterTheStartOfClasses();
+	if ($k == 1) {
+		/* スマートフォン */
+		doSPAfterTheStartOfClasses ();
+	} else {
+		/* ガラパゴス */
+		doGPAfterTheStartOfClasses ();
 	}
 }
-
-function doSPAfterTheStartOfClasses(){
-spHeadder("afterTheStartOfClasses");
+function doSPAfterTheStartOfClasses() {
+	spHeadder ( "afterTheStartOfClasses" );
 	echo <<<EOT
 <body>
 	<div data-role="page" id="first" data-theme="b">
@@ -363,7 +384,7 @@ spHeadder("afterTheStartOfClasses");
 	</div>
 	<!--content end-->
 EOT;
-	spFooter();
+	spFooter ();
 }
 
 // ガラパゴスフォン用
@@ -386,7 +407,6 @@ function doGPAfterTheStartOfClasses() {
 </html>
 EOT;
 }
-
 
 /**
  * ガラパコス携帯用*
@@ -423,10 +443,73 @@ EOT;
 }
 
 /**
+ * ガラパコス携帯用*
+ */
+function doUseESLGP($nowDate, $subName, $waitTime) {
+	echo <<<EOT
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<title>連絡事項</title>
+<script type="text/javascript" src="js/main.js"></script>
+</head>
+<body style="width: 200px;">
+	<div>連絡事項</div>
+	<hr>
+	<div>$nowDate の、</div>
+	<div>$subName では、</div>
+	<div>ESLを使用します.</div>
+	<div>ESLを首から下げて</div>
+	<div>講義室へ来てください.</div>
+	<div>$waitTime 以降にESLに本日の着席位置が表示されます.</div>
+	<div>　</div>
+	<div>もし、ESLを忘れた学生は申し出てください.</div>
+</body>
+</html>
+EOT;
+}
+
+/**
+ * スマホ用携帯サイト*
+ */
+function doUseESLSP($nowDate, $subName, $waitTime) {
+	spHeadder ( "連絡事項" );
+	echo <<<EOT
+<body>
+	<div data-role="page" id="first" data-theme="b">
+		<div data-role="header">
+			<h1>連絡事項</h1>
+		</div>
+		<div data-role="content" style="text-align: center">
+			<p>$nowDate の、</p>
+			<p>$subName では、</p>
+			<p>ESLを使用します.</p>
+			<p>ESLを首から下げて</p>
+			<p>講義室へ来てください.</p>
+			<p>$waitTime 以降にESLに本日の着席位置が表示されます.</p>
+			<p>　</div>
+			<p>もし、ESLを忘れた学生は申し出てください.</p>
+		</div>
+	</div>
+	<!--content end-->
+	<div data-role="footer" style="text-align: center">
+		<h4>&copy; 2014 Primary Meta Works</h4>
+	</div>
+	<!-- footer end-->
+	</div>
+</body>
+ロード中...
+</html>
+EOT;
+}
+/**
  * スマホ用携帯サイト*
  */
 function doPauseSPAcessSite($path, $randomNo, $scheduleId) {
-	spHeadder("MyPage");
+	spHeadder ( "MyPage" );
 	echo <<<EOT
 <body>
 	<div data-role="page" id="first" data-theme="b">
