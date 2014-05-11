@@ -60,11 +60,11 @@ if ($l != 20) {
 		/**
 		 * アクセス時間と乱数を元に現在履修している科目があるかを割り出す*
 		 */
-		$sql = "SELECT S.SCHEDULE_ID, S.ACTION_ID, S.USE_ESL, R.DM_BARCODE_ID, SU.SUBJECT_NAME
-			FROM `COURSE_REGISTRATION_MST` C, REGISTER_MST R, SYLLABUS_MST S,SUBJECT_MST　SU
+		$sql = "SELECT S.SCHEDULE_ID, S.ACTION_ID, S.USE_ESL,R.DM_BARCODE_ID, SU.SUBJECT_NAME 
+			FROM `COURSE_REGISTRATION_MST` C, REGISTER_MST R, SYLLABUS_MST S,SUBJECT_MST SU 
 			WHERE C.STUDENT_ID = R.STUDENT_ID
 			AND C.SUBJECT_ID = S.SUBJECT_ID 
-			AND S.SUBJECT_ID　=　SU.SUBJECT_ID 
+			AND S.SUBJECT_ID =SU.SUBJECT_ID 
 			AND S.TIMETABLE_ID = '" . $timeTableId . "'
 			AND S.YEAR = '" . $y . "'
 			AND S.MONTH = '" . $m . "'
@@ -76,9 +76,9 @@ if ($l != 20) {
 			$aId = $result [0] ['ACTION_ID'];
 			$scheduleId = $result [0] ['SCHEDULE_ID'];
 			$useESL = $result [0] ['USE_ESL'];
-			$dmBarcodeId =　null;
-			$dmBarcodeId =　$result [0] ['DM_BARCODE_ID'];
-			$subjectName =　$result [0] ['SUBJECT_NAME'];
+			$dmBarcodeId = null;
+			$dmBarcodeId = $result [0] ['DM_BARCODE_ID'];
+			$subjectName = $result [0] ['SUBJECT_NAME'];
 			if ($aId == 3) {
 				/* 座席指定 */
 				$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'sels',SCHEDULE_ID = '" . $scheduleId . "'
@@ -100,7 +100,8 @@ if ($l != 20) {
 			$contentResult = $con->getNowScreenContentDetaile ( $nowTime, $randomNo );
 			if (count ( $contentResult ) == 1) {
 				/* 携帯キーを取得 */
-				// $key = $p->distributPhoneKey ();
+				$key = $p->distributPhoneKey ();
+				//$key=0;
 				$contentId = $contentResult [0] ['NOW_SCREEN_CONTENT_ID'];
 				$registTime = $contentResult [0] ['REGISTER_TIME'];
 				$nowDate = $t->getNowDate ();
@@ -115,20 +116,16 @@ if ($l != 20) {
 				 * 必ず0にしておいてください．
 				 * **
 				 */
-				
-				/**/
-				$nowDateESL =　$time ->getNowDate();
-				$waitTime =　"12時30分";
-				/**/
-				
+				// $nowDateESL =　$t -> getNowDate();
+				$waitTime = "12時30分";
 				if ($key == 0) {
 					/* ガラケー */
 					$gpth = $a->getGalapagosPhonePath ();
 					/* ESLを使うかをチェックする */
-					/*ESLが登録されているかをチェックする*/
-					if ($useESL == 1 &&　$dmBarcodeId != null) {
+							/*ESLが登録されているかをチェックする*/
+							if ($useESL == 1 && $dmBarcodeId != null) {
 						/* ESLを使う */
-						doUseESLGP($nowDateESL,$subjectName,$waitTime);
+						doUseESLGP ( $nowDate, $subjectName, $waitTime );
 					} else {
 						if ($diff == 0) {
 							/* 登録から一週間以内 */
@@ -143,9 +140,9 @@ if ($l != 20) {
 					$spth = $a->getSmartPhonePath ();
 					/* ESLを使うかをチェックする */
 					/*ESLが登録されているかをチェックする*/
-					if ($useESL == 1 &&　$dmBarcodeId != null) {
+					if ($useESL == 1 && $dmBarcodeId != null) {
 						/* ESLを使う */
-						doUseESLSPS($nowDateESL,$subjectName,$waitTime);
+						doUseESLSP ( $nowDate, $subjectName, $waitTime );
 					} else {
 						if ($diff == 0) {
 							/* 登録から一週間以内 */
@@ -182,7 +179,7 @@ function dayDiff($registTime, $nowDay) {
 	$regDay = substr ( $registTime, 0, 10 );
 	$daydiff = (strtotime ( $nowDay ) - strtotime ( $regDay )) / (3600 * 24);
 	$difKey = - 1;
-	if ($daydiff < 40) {
+	if ($daydiff < 80) {
 		/* 一週間以内 */
 		$difKey = 0;
 	} else {
@@ -464,7 +461,7 @@ function doUseESLGP($nowDate, $subName, $waitTime) {
 	<div>ESLを使用します.</div>
 	<div>ESLを首から下げて</div>
 	<div>講義室へ来てください.</div>
-	<div>$waitTime 以降にESLに本日の着席位置が表示されます.</div>
+	<div>$waitTime 以降に本日の着席位置がESLに表示されます.</div>
 	<div>　</div>
 	<div>もし、ESLを忘れた学生は申し出てください.</div>
 </body>
@@ -489,8 +486,8 @@ function doUseESLSP($nowDate, $subName, $waitTime) {
 			<p>ESLを使用します.</p>
 			<p>ESLを首から下げて</p>
 			<p>講義室へ来てください.</p>
-			<p>$waitTime 以降にESLに本日の着席位置が表示されます.</p>
-			<p>　</div>
+			<p>$waitTime 以降に本日の着席位置がESLに表示されます.</p>
+			<p>　</p>
 			<p>もし、ESLを忘れた学生は申し出てください.</p>
 		</div>
 	</div>
