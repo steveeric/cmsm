@@ -26,6 +26,7 @@ if ($l != 20) {
 	
 	/*テスト時にはKEYを変更してください.*/
 	$key = $p->distributPhoneKey ();
+	//$key = 0;
 	
 	/* 現在のアクセス時間を取得する */
 	$nowTime = $t->getNowDetaileTime ();
@@ -60,7 +61,7 @@ if ($l != 20) {
 		/**
 		 * アクセス時間と乱数を元に現在履修している科目があるかを割り出す*
 		 */
-		$sql = "SELECT S.SCHEDULE_ID, S.ACTION_ID, S.USE_ESL,R.DM_BARCODE_ID, SU.SUBJECT_NAME 
+		$sql = "SELECT S.SCHEDULE_ID, S.ACTION_ID, S.USE_ESL,R.DM_BARCODE_ID, SU.SUBJECT_NAME ,C.COURSE_REGISTRATION_PERMIT 
 			FROM `COURSE_REGISTRATION_MST` C, REGISTER_MST R, SYLLABUS_MST S,SUBJECT_MST SU 
 			WHERE C.STUDENT_ID = R.STUDENT_ID
 			AND C.SUBJECT_ID = S.SUBJECT_ID 
@@ -79,95 +80,103 @@ if ($l != 20) {
 			$dmBarcodeId = null;
 			$dmBarcodeId = $result [0] ['DM_BARCODE_ID'];
 			$subjectName = $result [0] ['SUBJECT_NAME'];
-			if ($aId == 3) {
-				/* 座席指定 */
-				$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'sels',SCHEDULE_ID = '" . $scheduleId . "'
+			$permit = $result[0] ['COURSE_REGISTRATION_PERMIT'];
+			if($permit == 0){
+				/*授業ヘの参加を許可していない場合*/
+				doNotCourseRegistrationPermit($key,$subjectName);
+				/**/
+			}else{
+				/*授業ヘの参加を許可している場合*/
+				if ($aId == 3) {
+					/* 座席指定 */
+					$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'sels',SCHEDULE_ID = '" . $scheduleId . "'
 					WHERE `RANDOM_NO` = '" . $randomNo . "' ";
-				$upresult = $con->execute ( $upsql );
-			} else if ($aId == 9) {
-				/* グルーピング */
-				$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'gp',SCHEDULE_ID = '" . $scheduleId . "'
+					$upresult = $con->execute ( $upsql );
+				} else if ($aId == 9) {
+					/* グルーピング */
+					$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'gp',SCHEDULE_ID = '" . $scheduleId . "'
 					WHERE `RANDOM_NO` = '" . $randomNo . "' ";
-				$upresult = $con->execute ( $upsql );
-			} else {
-				$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'ctr',SCHEDULE_ID = '" . $scheduleId . "'
+					$upresult = $con->execute ( $upsql );
+				} else {
+					$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'ctr',SCHEDULE_ID = '" . $scheduleId . "'
 					WHERE `RANDOM_NO` = '" . $randomNo . "' ";
-				/* 端末から出席開始 */
-				$upresult = $con->execute ( $upsql );
-			}
-			
-			/* 表示する画面コンテンツを取得する */
-			$contentResult = $con->getNowScreenContentDetaile ( $nowTime, $randomNo );
-			if (count ( $contentResult ) == 1) {
-				/* 携帯キーを取得 */
-				$key = $p->distributPhoneKey ();
-				//$key=0;
-				$contentId = $contentResult [0] ['NOW_SCREEN_CONTENT_ID'];
-				$registTime = $contentResult [0] ['REGISTER_TIME'];
-				$nowDate = $t->getNowDate ();
-				$diff = dayDiff ( $registTime, $nowDate );
-				$buttomURL = ".php?r=";
-				$extension = ".php";
-				/**
-				 * ガラケー : 0
-				 * スマホ : 1
-				 *
-				 * 注意！！！！
-				 * 必ず0にしておいてください．
-				 * **
-				 */
-				// $nowDateESL =　$t -> getNowDate();
-				$waitTime = "12時30分";
-				if ($key == 0) {
-					/* ガラケー */
-					$gpth = $a->getGalapagosPhonePath ();
-					/* ESLを使うかをチェックする */
-							/*ESLが登録されているかをチェックする*/
-							if ($useESL == 1 && $dmBarcodeId != null) {
-						/* ESLを使う */
-						doUseESLGP ( $nowDate, $subjectName, $waitTime );
-					} else {
-						if ($diff == 0) {
-							/* 登録から一週間以内 */
-							$url = $gpth . "/" . $contentId . "/" . $contentId . $extension;
-							doPauseGPAcessSite ( $url, $randomNo, $scheduleId );
+					/* 端末から出席開始 */
+					$upresult = $con->execute ( $upsql );
+				}
+					
+				/* 表示する画面コンテンツを取得する */
+				$contentResult = $con->getNowScreenContentDetaile ( $nowTime, $randomNo );
+				if (count ( $contentResult ) == 1) {
+					/* 携帯キーを取得 */
+					//$key = $p->distributPhoneKey ();
+					//$key=0;
+					$contentId = $contentResult [0] ['NOW_SCREEN_CONTENT_ID'];
+					$registTime = $contentResult [0] ['REGISTER_TIME'];
+					$nowDate = $t->getNowDate ();
+					$diff = dayDiff ( $registTime, $nowDate );
+					$buttomURL = ".php?r=";
+					$extension = ".php";
+					/**
+					 * ガラケー : 0
+					 * スマホ : 1
+					 *
+					 * 注意！！！！
+					 * 必ず0にしておいてください．
+					 * **
+					 */
+					// $nowDateESL =　$t -> getNowDate();
+					$waitTime = "12時30分";
+					if ($key == 0) {
+						/* ガラケー */
+						$gpth = $a->getGalapagosPhonePath ();
+						/* ESLを使うかをチェックする */
+						/*ESLが登録されているかをチェックする*/
+						if ($useESL == 1 && $dmBarcodeId != null) {
+							/* ESLを使う */
+							doUseESLGP ( $nowDate, $subjectName, $waitTime );
 						} else {
-							$url = $gpth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
-							doAccessSite ( $url );
+							if ($diff == 0) {
+								/* 登録から一週間以内 */
+								$url = $gpth . "/" . $contentId . "/" . $contentId . $extension;
+								doPauseGPAcessSite ( $url, $randomNo, $scheduleId );
+							} else {
+								$url = $gpth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
+								doAccessSite ( $url );
+							}
+						}
+					} else {
+						$spth = $a->getSmartPhonePath ();
+						/* ESLを使うかをチェックする */
+						/*ESLが登録されているかをチェックする*/
+						if ($useESL == 1 && $dmBarcodeId != null) {
+							/* ESLを使う */
+							doUseESLSP ( $nowDate, $subjectName, $waitTime );
+						} else {
+							if ($diff == 0) {
+								/* 登録から一週間以内 */
+								$url = $spth . "/" . $contentId . "/" . $contentId . $extension;
+								doPauseSPAcessSite ( $url, $randomNo, $scheduleId );
+							} else {
+								/* スマホ */
+								$spth = $a->getSmartPhonePath ();
+								$url = $spth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
+								doAccessSite ( $url );
+							}
 						}
 					}
 				} else {
-					$spth = $a->getSmartPhonePath ();
-					/* ESLを使うかをチェックする */
-					/*ESLが登録されているかをチェックする*/
-					if ($useESL == 1 && $dmBarcodeId != null) {
-						/* ESLを使う */
-						doUseESLSP ( $nowDate, $subjectName, $waitTime );
-					} else {
-						if ($diff == 0) {
-							/* 登録から一週間以内 */
-							$url = $spth . "/" . $contentId . "/" . $contentId . $extension;
-							doPauseSPAcessSite ( $url, $randomNo, $scheduleId );
-						} else {
-							/* スマホ */
-							$spth = $a->getSmartPhonePath ();
-							$url = $spth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
-							doAccessSite ( $url );
-						}
-					}
+					/* コンテンツを取得できませんでした. */
+					/*パラメータ正常屋で！！
+					 * 何かおかしいぞ！！！*/
+					/*パラメータDBにない！！！！*/
+					/*不正！？*/
+					$title = "画面コンテンツ";
+					$error = "[" . $randomNo . "]さんが画面コンテンツを取得できません．";
+					// $m = new Mail();
+					// $m -> sendError($title, $error);
+					echo "コンテンツを取得できませんでした.";
+					echo "教員に申し出て下さい．";
 				}
-			} else {
-				/* コンテンツを取得できませんでした. */
-				/*パラメータ正常屋で！！
-				 * 何かおかしいぞ！！！*/
-				/*パラメータDBにない！！！！*/
-				/*不正！？*/
-				$title = "画面コンテンツ";
-				$error = "[" . $randomNo . "]さんが画面コンテンツを取得できません．";
-				// $m = new Mail();
-				// $m -> sendError($title, $error);
-				echo "コンテンツを取得できませんでした.";
-				echo "教員に申し出て下さい．";
 			}
 		} else {
 			/* 現在の時間帯に履修科目がない */
@@ -179,12 +188,13 @@ function dayDiff($registTime, $nowDay) {
 	$regDay = substr ( $registTime, 0, 10 );
 	$daydiff = (strtotime ( $nowDay ) - strtotime ( $regDay )) / (3600 * 24);
 	$difKey = - 1;
-	if ($daydiff < 80) {
+	if ($daydiff < 100) {
 		/* 一週間以内 */
 		$difKey = 0;
 	} else {
 		$difKey = 1;
 	}
+        $difKey=0;
 	return $difKey;
 }
 function excute($upsql) {
@@ -463,7 +473,11 @@ function doUseESLGP($nowDate, $subName, $waitTime) {
 	<div>講義室へ来てください.</div>
 	<div>$waitTime 以降に本日の着席位置がESLに表示されます.</div>
 	<div>　</div>
-	<div>もし、ESLを忘れた学生は申し出てください.</div>
+	<div>本日からESLを忘れた学生は講義を受講できません.</div>
+        <div>ただし、宿題の提出は受付ますので</div>
+        <div>講義室の入り口で提出し,次回の宿題を受け取ってください.</div>
+        <div>もし、ESLをまだもらっていない学生は個別に対応しますので,</div>
+        <div>TAに申し出てください.</div>
 </body>
 </html>
 EOT;
@@ -488,7 +502,11 @@ function doUseESLSP($nowDate, $subName, $waitTime) {
 			<p>講義室へ来てください.</p>
 			<p>$waitTime 以降に本日の着席位置がESLに表示されます.</p>
 			<p>　</p>
-			<p>もし、ESLを忘れた学生は申し出てください.</p>
+			<p>本日からESLを忘れた学生は講義を受講できません.</p>
+                        <p>ただし、宿題の提出は受付ますので</p>
+                        <p>講義室の入り口で提出し,次回の宿題を受け取ってください.</p>
+                        <p>もし、ESLをまだもらっていない学生は個別に対応しますので,</p>
+                        <p>TAに申し出てください.</p>
 		</div>
 	</div>
 	<!--content end-->
@@ -535,4 +553,54 @@ function doPauseSPAcessSite($path, $randomNo, $scheduleId) {
 </html>
 EOT;
 }
+
+
+/**授業ヘの参加を認めない場合**/
+function doNotCourseRegistrationPermit($key,$subjectName) {
+	if($key == 0){
+		//ガラケー用
+		echo <<<EOT
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<title>連絡事項</title>
+<script type="text/javascript" src="js/main.js"></script>
+</head>
+<body style="width: 200px;">
+	<div>連絡事項</div>
+	<hr>
+	<div>$subjectName への、</div>
+	<div>参加が許可されていないので､</div>
+	<div>コンテンツをご提供することができません.</div>
+	<div>教員に申し出てください.</div>
+</body>
+</html>
+EOT;
+	}else{
+		//スマートフォン用
+		spHeadder ( "afterTheStartOfClasses" );
+		echo <<<EOT
+	<body>
+	<div data-role="page" id="first" data-theme="b">
+		<div data-role="header">
+			<h1>連絡事項</h1>
+		</div>
+		<div data-role="content" style="text-align: center">
+			<p>$subjectName への、</p>
+			<div>参加が許可されていないので､</div>
+			<div>コンテンツをご提供することができません.</div>
+			<div>教員に申し出てください.</div>
+		</div>
+		<hr>
+	</div>
+EOT;
+		spFooter ();
+	}
+}
+
+/**授業ヘの参加を認めない場合**/
+
 ?>
