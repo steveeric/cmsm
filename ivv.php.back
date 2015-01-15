@@ -142,7 +142,7 @@ if ($l != 20) {
 								$url = $gpth . "/" . $contentId . "/" . $contentId . $extension;
 								doPauseGPAcessSite ( $url, $randomNo, $scheduleId );
 							} else {
-								$url = $gpth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo."&s=".$scheduleId;
+								$url = $gpth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
 								doAccessSite ( $url );
 							}
 						}
@@ -161,7 +161,7 @@ if ($l != 20) {
 							} else {
 								/* スマホ */
 								$spth = $a->getSmartPhonePath ();
-								$url = $spth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo."&s=".$scheduleId;
+								$url = $spth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
 								doAccessSite ( $url );
 							}
 						}
@@ -229,7 +229,7 @@ function excute($upsql) {
  * URL発行サイトへ*
  */
 function doAccessSite($url) {
-	 //echo $url;
+	// echo $url;
 	header ( 'Location: ' . $url );
 }
 /**

@@ -26,7 +26,7 @@ if ($l != 20) {
 	
 	/*テスト時にはKEYを変更してください.*/
 	$key = $p->distributPhoneKey ();
-	//$key = 0;
+        //$key = 0;
 	
 	/* 現在のアクセス時間を取得する */
 	$nowTime = $t->getNowDetaileTime ();
@@ -72,7 +72,8 @@ if ($l != 20) {
 			AND S.DAY = '" . $d . "'
 			AND R.RANDOM_NO = '" . $randomNo . "'";
 		$result = $con->query ( $sql );
-		if (count ( $result ) == 1) {
+		//var_dump($result);
+                if (count ( $result ) == 1) {
 			/* 履修科目があれば */
 			$aId = $result [0] ['ACTION_ID'];
 			$scheduleId = $result [0] ['SCHEDULE_ID'];
@@ -82,9 +83,9 @@ if ($l != 20) {
 			$subjectName = $result [0] ['SUBJECT_NAME'];
 			$permit = $result[0] ['COURSE_REGISTRATION_PERMIT'];
 			if($permit == 0){
-				/*授業ヘの参加を許可していない場合*/
-				doNotCourseRegistrationPermit($key,$subjectName);
-				/**/
+                                   /*授業ヘの参加を許可していない場合*/
+                                   /*宿題4下位以上忘れている*/
+				   doNotCourseRegistrationPermit($key,$subjectName);
 			}else{
 				/*授業ヘの参加を許可している場合*/
 				if ($aId == 3) {
@@ -114,6 +115,7 @@ if ($l != 20) {
 					$registTime = $contentResult [0] ['REGISTER_TIME'];
 					$nowDate = $t->getNowDate ();
 					$diff = dayDiff ( $registTime, $nowDate );
+					$diff=1;
 					$buttomURL = ".php?r=";
 					$extension = ".php";
 					/**
@@ -140,7 +142,7 @@ if ($l != 20) {
 								$url = $gpth . "/" . $contentId . "/" . $contentId . $extension;
 								doPauseGPAcessSite ( $url, $randomNo, $scheduleId );
 							} else {
-								$url = $gpth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
+								$url = $gpth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo."&s=".$scheduleId;
 								doAccessSite ( $url );
 							}
 						}
@@ -159,7 +161,7 @@ if ($l != 20) {
 							} else {
 								/* スマホ */
 								$spth = $a->getSmartPhonePath ();
-								$url = $spth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo;
+								$url = $spth . "/" . $contentId . "/" . $contentId . $buttomURL . $randomNo."&s=".$scheduleId;
 								doAccessSite ( $url );
 							}
 						}
@@ -179,8 +181,25 @@ if ($l != 20) {
 				}
 			}
 		} else {
-			/* 現在の時間帯に履修科目がない */
-			doNotClasses ( $key );
+                        $sql = "SELECT M.RANDOM_NO, R.REGISTER_TIME, M.NOW_SCREEN_CONTENT_ID, S.STUDENT_ID, S.FULL_NAME
+                                FROM `MOBILE_SCREEN` M, REGISTER_MST R, STUDENT_MST S
+                                WHERE M.RANDOM_NO = R.RANDOM_NO
+                                AND R.STUDENT_ID = S.STUDENT_ID
+                                AND M.`RANDOM_NO` LIKE '".$randomNo."'";
+                         $result = $con -> query($sql);
+                         //var_dupm($result);
+                         $nowScreenContentId = $result[0]["NOW_SCREEN_CONTENT_ID"];
+                         $studentId = $result[0]["STUDENT_ID"];
+                         $fullName = $result[0]["FULL_NAME"];
+                         $registerTime = $result[0]["REGISTER_TIME"];
+
+                         if(strcmp($nowScreenContentId,"register") == 0){
+                           /*登録サイトを表示する*/
+                           registerInfo( $key, $registerTime, $studentId, $fullName);
+                         }else{
+			   /* 現在の時間帯に履修科目がない */
+			   doNotClasses ( $key );
+                         }
 		}
 	}
 }
@@ -210,7 +229,7 @@ function excute($upsql) {
  * URL発行サイトへ*
  */
 function doAccessSite($url) {
-	// echo $url;
+	 //echo $url;
 	header ( 'Location: ' . $url );
 }
 /**
@@ -273,6 +292,69 @@ EOT;
 }
 
 /**
+**
+***/
+
+function registerInfo($k,$registerTime,$id,$name) {
+        $str1 = "<p>[STEP6]～[STEP8]の操作が異なります.</p> <p>現在見ているWEBサイトをブックマークして下さい.</p> <div></div><p>以下の学生が登録しています.</p>";
+        $str2 = "<p>このWEBサイトはあなたのマイページです.</p><p>ブックマークしておいてください.</p> <p>中村先生の授業では、このサイトを通して</p><p>様々な授業コンテンツを提供致します.</p>";
+        if ($k == 1) {
+                /* スマートフォン */
+                registerSpInfo($str1,$str2,$registerTime,$id,$name);
+        } else {
+                /* ガラパゴス */
+                registerGpInfo($str1,$str2,$registerTime,$id,$name);
+        }
+}
+
+function registerSpInfo($str1,$str2,$time,$id,$name){
+
+ spHeadder ( "registerSpInfo" );
+        echo <<<EOT
+<body>
+        <div data-role="page" id="first" data-theme="b">
+                <div data-role="header">
+                        <h1>登録内容確認</h1>
+                </div>
+                <div data-role="content" style="text-align: center">
+                $str1
+　　　　　　　　<div>学籍番号 : $id </div>
+                <div>登録日 : $time </div>
+                <p></p>
+                $str2
+                </div>
+        <!--content end-->
+EOT;
+        spFooter ();
+
+}
+
+function registerGpInfo($str1,$str2,$time,$id,$name){
+        echo <<<EOT
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<title>AIT.MyPage</title>
+</head>
+<body style="width: 200px;">
+        <div>登録内容確認</div>
+        <hr>
+         $str1
+         <div>学籍番号 : $id </div>
+         <div>登録日 : $time </div>
+         <p></p>
+         $str2
+        <hr>
+</body>
+</html>
+EOT;
+
+}
+
+/**
  * *
  *
  * 履修科目がない
@@ -305,6 +387,7 @@ function doNotSPClasses() {
 EOT;
 	spFooter ();
 }
+
 function spHeadder($title) {
 	echo <<<EOT
 <!DOCTYPE HTML>
@@ -572,10 +655,11 @@ function doNotCourseRegistrationPermit($key,$subjectName) {
 <body style="width: 200px;">
 	<div>連絡事項</div>
 	<hr>
-	<div>$subjectName への、</div>
-	<div>参加が許可されていないので､</div>
-	<div>コンテンツをご提供することができません.</div>
-	<div>教員に申し出てください.</div>
+　　　　<div>コンテンツをご提供することができません.</div>
+	<div>宿題を4回以上提出しなかったので、</div>
+        <div>$subjectName への、</div>
+	<div>参加をすることができません.</div>
+	<div>もし、違う場合はお手数ですが教員に申し出てください.</div>
 </body>
 </html>
 EOT;
@@ -589,10 +673,11 @@ EOT;
 			<h1>連絡事項</h1>
 		</div>
 		<div data-role="content" style="text-align: center">
-			<p>$subjectName への、</p>
-			<div>参加が許可されていないので､</div>
-			<div>コンテンツをご提供することができません.</div>
-			<div>教員に申し出てください.</div>
+			<p>コンテンツをご提供することができません.</p>
+　　　　　　　　　　　　<p>宿題を4回以上提出しなかったので、</p>
+                        <p>$subjectName への、</p>
+			<p>参加をすることができません.</p>
+			<p>もし、違う場合はお手数ですが教員に申し出てください.</p>
 		</div>
 		<hr>
 	</div>

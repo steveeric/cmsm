@@ -4,6 +4,7 @@
  *
  * ***/
 $scheduleId = $_POST ['s'];
+//$scheduleId = "0001030110KK020140004";
 $randomNo = $_POST ['r'];
 //$scheduleId = $_GET ['s'];
 //$randomNo = $_GET ['r'];

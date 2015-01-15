@@ -1,6 +1,5 @@
 <?php
 
-echo "出席取るぞ！！！";
 echo <<<EOT
 	<div data-role="page" id="first" data-theme="b">
 
