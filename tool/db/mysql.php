@@ -22,7 +22,7 @@ class DB {
 		$this->db = $db;
 		$this->dsn = "mysql:dbname=$db;$host=$host";
 	}
-	
+
 	/**
 	 * 現在の時刻から現在のTIMETABLE_IDを取得する
 	 *
@@ -32,7 +32,7 @@ class DB {
 		$sql = "SELECT `TIMETABLE_ID`, `TIMETABLE_NAME`, `CLASS_START_TIME`, `CLASS_END_TIME` FROM `TIMETABLE_MST` WHERE CLASS_END_TIME >= '" . $time . "' ORDER BY `TIMETABLE_MST`.`CLASS_START_TIME` ASC LIMIT 1 ";
 		return $this->query ( $sql );
 	}
-	
+
 	/**
 	 * 現在の日時からSCHEDULE_IDを返す
 	 *
@@ -42,7 +42,7 @@ class DB {
 		$sql = "SELECT SCHEDULE_ID FROM `SYLLABUS_MST` WHERE `YEAR` = '" . $year . "' AND `MONTH` LIKE '" . $month . "' AND `DAY` LIKE '" . $day . "'  AND `TIMETABLE_ID` LIKE '" . $timeTableId . "' ";
 		return $this->query ( $sql );
 	}
-	
+
 	/**
 	 * DB上に登録されている学籍番号かを調べる
 	 * **
@@ -57,7 +57,7 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -69,7 +69,7 @@ class DB {
 			exit ();
 		}
 	}
-	
+
 	/**
 	 * DB上に登録されている学籍番号かを調べる
 	 * **
@@ -88,7 +88,7 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -100,7 +100,7 @@ class DB {
 			exit ();
 		}
 	}
-	
+
 	/**
 	 * 過去に登録したことがある学生かを調べる
 	 * **
@@ -115,7 +115,7 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -127,7 +127,7 @@ class DB {
 			exit ();
 		}
 	}
-	
+
 	/**
 	 * 乱数を元にして学生情報を取得する
 	 *
@@ -143,7 +143,7 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -155,7 +155,7 @@ class DB {
 			exit ();
 		}
 	}
-	
+
 	/**
 	 * 乱数を元に学籍番号を返す
 	 *
@@ -168,7 +168,7 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -180,7 +180,7 @@ class DB {
 			exit ();
 		}
 	}
-	
+
 	/**
 	 * DBにとうろくされているURLを取得する
 	 * **
@@ -195,7 +195,7 @@ class DB {
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					// プリペアドステートメントのエミュレーションを無効化する
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -207,7 +207,7 @@ class DB {
 			exit ();
 		}
 	}
-	
+
 	/**
 	 * 紐付けを行った時間を記録する
 	 * *
@@ -220,7 +220,7 @@ class DB {
 		$sql = "INSERT INTO `MOBILE_SCREEN` (`RANDOM_NO`, `NOW_SCREEN_CONTENT_ID`, `SCHEDULE_ID`, `LAST_ACCESS_TIME`) VALUES ('" . $randomNo . "', 'register', '0', '" . $time . "')";
 		return $this->execute ( $sql );
 	}
-	
+
 	/**
 	 * DB上のMOBILE_SCREENの内容を乱数を元に取得してくる
 	 */
@@ -231,7 +231,7 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -243,7 +243,7 @@ class DB {
 			exit ();
 		}
 	}
-	
+
 	/**
 	 * DB上のMOBILE_SCREENの内容を乱数を元に取得してくる
 	 */
@@ -261,7 +261,7 @@ class DB {
 				WHERE M.RANDOM_NO = R.RANDOM_NO AND R.`RANDOM_NO` LIKE '" . $randomNo . "'";
 		return $this->query ( $sql );
 	}
-	
+
 	/**
 	 * SCHEDULE_IDと学籍番号を元に出席しているかを割り出す．
 	 *
@@ -277,7 +277,7 @@ class DB {
 						AND A.`STUDENT_ID` LIKE '" . $studentId . "' ";
 		return $this->query ( $sql );
 	}
-	
+
 	/**
 	 * 乱数がDBに登録されているかをチェックする関数
 	 * 引数 : URLにくっついているr=(20)桁
@@ -291,7 +291,7 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -303,7 +303,7 @@ class DB {
 			exit ();
 		}
 	}
-	
+
 	/**
 	 * 現在DBに設定されている画面情報を取得してくる
 	 *
@@ -316,7 +316,7 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -328,7 +328,7 @@ class DB {
 			exit ();
 		}
 	}
-	
+
 	/**
 	 * DBのREGISTER_MSTに乱数と紐づけた日時を返す．
 	 *
@@ -341,7 +341,7 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -359,7 +359,7 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -380,7 +380,7 @@ class DB {
 					PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='TRADITIONAL'",
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$stmt->execute ();
@@ -395,7 +395,7 @@ class DB {
 			exit ();
 		}
 	}
-	
+
 	// 配列でない結果を得るとき
 	/*
 	 * public function queryItem(){ try{ $pdo = new PDO ($this->dsn, $this->user, $this->pass, array( PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'")); $stmt = $pdo->prepare($sql); $stmt->execute(); $data = $stmt->fetchAll(PDO::FETCH_ASSOC); return $data; } catch(PDOException $e) { echo 'Connection failed:'.$e->getMessage(); exit(); } }
@@ -409,7 +409,7 @@ class DB {
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					// プリペアドステートメントのエミュレーションを無効化する
 					PDO::ATTR_EMULATE_PREPARES => false,
-					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'" 
+					PDO::MYSQL_ATTR_INIT_COMMAND => "SET CHARACTER SET 'utf8'"
 			) );
 			$stmt = $pdo->prepare ( $sql );
 			$flag = $stmt->execute ();
@@ -421,7 +421,7 @@ class DB {
 			exit ();
 		}
 	}
-	
+
 	/**
 	 * グルーピングや座席指定ﾃﾞ使用する座席使用情報を初期化する**
 	 */
@@ -434,7 +434,7 @@ class DB {
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_AUTOCOMMIT => true,
 					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-					PDO::ATTR_EMULATE_PREPARES => false 
+					PDO::ATTR_EMULATE_PREPARES => false
 			) );
 			/* 初期化するのでその旨を記録 */
 			$initSQL = "INSERT INTO `LAST_USE_CHANGING` (`SCHEDULE_ID` ,`ROOM_ID` ,`SCREEN_CONTENT_ID` ,`RANDOM_NO` ,`ACCESS_TIME`) VALUES ('" . $scheduleId . "', '" . $roomId . "', '" . $contentId . "', '" . $randomNo . "', '" . $attTime . "')";
@@ -454,7 +454,7 @@ class DB {
 					$sth->execute ();
 					// $initSeatChangeSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '0' WHERE `ROOM_ID` = '" . $roomId . "' AND `SCREEN_CONTENT_ID` = '" . $contentId . "' ";
 					// $initResult = $this->execute ( $initSeatChangeSQL );
-					
+
 					$checkSQL = "SELECT RANDOM_NO FROM `LAST_USE_CHANGING` WHERE `SCHEDULE_ID` LIKE '" . $scheduleId . "'";
 					$checkResult = $this->query ( $checkSQL );
 					$selectRandom = $checkResult [0] ['RANDOM_NO'];
@@ -475,14 +475,14 @@ class DB {
 					AND SC.SCREEN_CONTENT_ID = '" . $contentId . "'
 					ORDER BY SC.`SELECTION_ORDER` ASC
 					LIMIT 1 FOR UPDATE";
-					
+
 					$data = $this->query ( $selSeatSQL );
 					$seatId = $data [0] ['SEAT_ID'];
-					
+
 					$preAttSQL = "INSERT INTO `ATTENDEE` (`ATTEND_ID` ,`SCHEDULE_ID` ,`STUDENT_ID` ,`SEAT_ID` ,`ATTEND_TIME`)VALUES ('" . $attendeeId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $attTime . "')";
 					$stmt = $pdo->prepare ( $preAttSQL );
 					$stmt->execute ();
-						
+
 					$usingSeatSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '1' WHERE `ROOM_ID` = '" . $roomId . "' AND `SCREEN_CONTENT_ID` = '" . $contentId . "' AND `SEAT_ID` = '" . $seatId . "'";
 					$stmt3 = $pdo->prepare ( $usingSeatSQL );
 					$stmt3->execute ();*/
@@ -517,14 +517,14 @@ class DB {
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_AUTOCOMMIT => true,
 					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-					PDO::ATTR_EMULATE_PREPARES => false 
+					PDO::ATTR_EMULATE_PREPARES => false
 			) );
-			
+
 			try {
 				$pdo->setAttribute ( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 				// トランザクションを開始する。オートコミットがオフになる
 				$pdo->beginTransaction ();
-				
+
 				$seatId = 0;
 				/* 使用できる座席を抽出する */
 				$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
@@ -536,32 +536,32 @@ class DB {
 					AND SC.SCREEN_CONTENT_ID = '" . $contentId . "'
                   ORDER BY SC.`SELECTION_ORDER` ASC
 					LIMIT 1 FOR UPDATE";
-				
+
 				if ($scheduleId == '0001032804C1020140001') {
 					// 2014年04月28日の月曜3限用です.
 					// ESL配布のためのプログラムになります.
 					//一度でも休んだことがある人は､最後尾から詰める仕様になっています.
-					
+
 					//SUBJECT_IDを取得
 					$subSQL = "SELECT SUBJECT_ID FROM `SYLLABUS_MST` WHERE `SCHEDULE_ID` LIKE '".$scheduleId."'";
 					$subData = $this->query ( $subSQL );
 					$subId = $subData[0]['SUBJECT_ID'];
-					$abSQL = "SELECT ABSENT_ID FROM `ABSENTEE` AB, SYLLABUS_MST SY, SUBJECT_MST SU 
-							WHERE AB.SCHEDULE_ID = SY.SCHEDULE_ID 
-							AND SU.SUBJECT_ID = SY.SUBJECT_ID 
-							AND SU.SUBJECT_ID = '" . $subId . "' 
+					$abSQL = "SELECT ABSENT_ID FROM `ABSENTEE` AB, SYLLABUS_MST SY, SUBJECT_MST SU
+							WHERE AB.SCHEDULE_ID = SY.SCHEDULE_ID
+							AND SU.SUBJECT_ID = SY.SUBJECT_ID
+							AND SU.SUBJECT_ID = '" . $subId . "'
 							AND AB.STUDENT_ID = '" . $studentId . "'";
 					$abData = $this->query ( $abSQL );
 					if (count ( $abData ) > 0) {
 						// 一回でも休んだことがある.
-						$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN 
-										FROM `SEAT_CHANGE_MST` SC, SEAT_MST SE, SEAT_BLOCK_MST SB 
-										WHERE SC.SEAT_ID = SE.SEAT_ID 
-										AND SE.SEAT_BLOCK_ID = SB.SEAT_BLOCK_ID 
-										AND SC.`USING` = 0 
-										AND SC.ROOM_ID = '".$roomId."' 
-										AND SC.SCREEN_CONTENT_ID = '".$contentId."' 
-										ORDER BY SC.`SELECTION_ORDER` DESC 
+						$selSeatSQL = "SELECT SC.SEAT_ID, SC.GROUP_NAME, SB.SEAT_BLOCK_NAME, SE.SEAT_ROW, SE.SEAT_COLUMN
+										FROM `SEAT_CHANGE_MST` SC, SEAT_MST SE, SEAT_BLOCK_MST SB
+										WHERE SC.SEAT_ID = SE.SEAT_ID
+										AND SE.SEAT_BLOCK_ID = SB.SEAT_BLOCK_ID
+										AND SC.`USING` = 0
+										AND SC.ROOM_ID = '".$roomId."'
+										AND SC.SCREEN_CONTENT_ID = '".$contentId."'
+										ORDER BY SC.`SELECTION_ORDER` DESC
 										LIMIT 1 FOR UPDATE";
 						$data = $this->query ( $selSeatSQL );
 						$seatId = $data [0] ['SEAT_ID'];
@@ -574,17 +574,17 @@ class DB {
 					$data = $this->query ( $selSeatSQL );
 					$seatId = $data [0] ['SEAT_ID'];
 				}
-				
+
 				/* 出席 */
 				$preAttSQL = "INSERT INTO `ATTENDEE` (`ATTEND_ID` ,`SCHEDULE_ID` ,`STUDENT_ID` ,`SEAT_ID` ,`ATTEND_TIME`)VALUES ('" . $attendeeId . "', '" . $scheduleId . "', '" . $studentId . "', '" . $seatId . "', '" . $attTime . "')";
 				$stmt = $pdo->prepare ( $preAttSQL );
 				$stmt->execute ();
-				
+
 				/* 座席を使用状態に */
 				$usingSeatSQL = "UPDATE `SEAT_CHANGE_MST` SET `USING` = '1' WHERE `ROOM_ID` = '" . $roomId . "' AND `SCREEN_CONTENT_ID` = '" . $contentId . "' AND `SEAT_ID` = '" . $seatId . "'";
 				$stmt3 = $pdo->prepare ( $usingSeatSQL );
 				$stmt3->execute ();
-				
+
 				// 変更をコミットする
 				$pdo->commit ();
 			} catch ( PDOException $e ) {
@@ -599,12 +599,12 @@ class DB {
 		}
 		return $data;
 	}
-	
+
 	/* REGISTER_MSTに学籍番号が登録されていなかった場合 */
 	public function aa() {
 		$sql = "UPDATE REGISTER_MST R,(SELECT RANDOM_NO FROM REGISTER_MST WHERE TENTATIVE_RESERVATION IS NULL ORDER BY rand() LIMIT 1 ) X SET R.TENTATIVE_RESERVATION='2' WHERE R.RANDOM_NO = X.RANDOM_NO ";
 	}
-	
+
 	/* クエリーエラーを出力 */
 	function errorLog($sql, $e) {
 		echo $sql . ":" . $e;
