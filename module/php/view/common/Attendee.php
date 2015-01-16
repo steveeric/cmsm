@@ -13,7 +13,7 @@
 		private $attendeeId;
 
 		/*マトリックス情報*/
-		private $matrixLogId;
+		private $lastMatrixLogId;
       private $resultInputMatrix;
       private $requestcountJudgementMatrix;
 		/*マトリックス情報*/
@@ -33,18 +33,22 @@
          * @parm requestcountJudgementMatrix　値を入力しOKボタンを押した回数
          *
          **/
-   		public function setMatrixInfo($matrixLogId,$resultInputMatrix,$requestcountJudgementMatrix){
-   			$this -> matrixLogId = $matrixLogId;
+   		public function setMatrixInfo($lastMatrixLogId,$resultInputMatrix,$requestcountJudgementMatrix){
+   			$this -> lastMatrixLogId = $lastMatrixLogId;
    			$this -> resultInputMatrix = $resultInputMatrix;
    			$this -> requestcountJudgementMatrix = $requestcountJudgementMatrix;
    		}
+
+         public function setMatrixLogId($matrixLogId){
+            $this -> lastMatrixLogId =  $matrixLogId;
+         }
 
    		public function getAttendeeId(){
    			return $this -> attendeeId;
    		}
 
-   		public function getMatrixLogId(){
-   			return $this -> matrixLogId;
+   		public function getLastMatrixLogId(){
+   			return $this -> lastMatrixLogId;
    		}
    		public function getResultInputMatrix(){
    			return $this -> resultInputMatrix;

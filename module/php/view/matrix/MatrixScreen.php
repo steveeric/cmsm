@@ -3,6 +3,12 @@
 	* Matrixコンテンツの画面状態を保持するクラスです
 	***/
 	class MatrixScreen{
+
+		//入力制限内(正常に値を当てた)
+      	public $IN_INPUT_LIMET = 1;
+      	//入力制限オーバー
+      	public $OVER_INPUT_LIMET = 2;
+
 		//終了しているのか.
 		private $endFlag = 0;
 		/*
@@ -14,8 +20,11 @@
    		* 4 : 入力画面
 		*/
 		private $screenNumber = 0;
-		//画面コンテンツクラス
-		private $screenContent;
+		//学生
+		private $student;
+		//マトリックス
+		private $matrix;
+
 
 
 		/**
@@ -33,10 +42,12 @@
 		public function setScreenNumber($screenNumber){
 			$this -> screenNumber = $screenNumber;
 		}
-   		/*画面コンテンツのセッター*/
-		public function setScreenContent($screenContent){
-			$this -> screenContent = $screenContent;
+
+		public function setMatrixItem($student,$matrix){
+			$this -> student = $student;
+			$this -> matrix = $matrix;
 		}
+
 
 		/**
 		* コンテンツ終了状態フラグ.
@@ -51,12 +62,14 @@
 			return $this -> screenNumber;
 		}
 
-		/**
-		* 画面状態番号を返す.
-		**/
-		public function getScreenContent(){
-			return $this -> screenContent;
+		public function getStudent(){
+			return $this -> student;
 		}
+
+		public function getMatrix(){
+			return $this -> matrix;
+		}
+
 
 
 	}

@@ -366,7 +366,7 @@ class DB {
 			$data = $stmt->fetchAll ( PDO::FETCH_ASSOC );
 			return $data;
 		} catch ( PDOException $e ) {
-			// echo 'Connection failed:'.$e->getMessage();
+			 echo 'Connection failed:'.$e->getMessage();//." SQL:".$sql;
 			errorLog ( $sql, $e->getMessage () );
 			exit ();
 		}
@@ -416,7 +416,7 @@ class DB {
 			$data = $pdo->lastInsertId ();
 			return $flag;
 		} catch ( PDOException $e ) {
-			// echo 'Connection failed:'.$e->getMessage();
+			 echo 'Connection failed:'.$e->getMessage();// ." SQL:".$sql;
 			errorLog ( $sql, $e->getMessage () );
 			exit ();
 		}

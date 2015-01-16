@@ -9,31 +9,38 @@
 					<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
 					<script
 						src="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.js"></script>
+					<script type="text/javascript" src="matrix.js"></script>
 
 <?php
 	//マトリックスモジュール読み込み
 	include_once(dirname(__FILE__).'../../../../../module/php/view/matrix/matrix.php');
 
 	//マトリックスインスタンス
-	$matrix = new Matrix();
+	$matrixModule = new MatrixModule();
 
-	//
-	$matrix -> setItem("0001020206KK020140002","");
+	//X12009
+	$matrixModule -> setItem("0001033001KX020140005","48457296612673357411");
 
-	$screenState = $matrix -> getScreenState();
-
+	$screenState = $matrixModule -> getScreenState();
 	$screenNumber = $screenState -> getScreenNumber();
-	$screenContent = $screenState -> getScreenContent();
 
-	if($screenNumber == $matrix -> MODE_CAN_NOT_JOIN){
+	//学生情報クラス
+	$student = $screenState -> getStudent();
+
+	if($screenNumber == $matrixModule -> MODE_CAN_NOT_JOIN){
 		//参加できないモード
 		echo screenCanNotJoin();
-	}else if($screenNumber == $matrix -> MODE_NAME_PLATE){
+	}else if($screenNumber == $matrixModule -> MODE_CLOSED){
+		//終了しましたモード
+		echo screenClosed();
+	}else if($screenNumber == $matrixModule -> MODE_NAME_PLATE){
 		//名札モード
-		echo screenNamePlate($screenContent);
-	}else if($screenNumber == $matrix -> MODE_INPUT_VALUE){
+		echo screenNamePlate($screenState);
+	}else if($screenNumber == $matrixModule -> MODE_INPUT_VALUE){
 		//入力画面モード
-
+		//マトリックスクラス
+		$matrix = $screenState -> getMatrix();
+		echo screenInputValue($student,$matrix);
 	}
 
 	/**
@@ -42,13 +49,67 @@
    	* 入力画面
    	* @parm inputValueClass 入力内容に関する情報クラス
    	**/
-	function screenInputValue($inputValueClass){
+	function screenInputValue($student,$matrix){
+
+		$MAX_CHKBORD_ROW = $matrix -> matrixBordRowCount;
+		$MAX_CHKBORD_COLUMN = $matrix -> matrixBordColumnCount;
+
+		$mustInputRow = $matrix -> matrixRowNumber;
+		$mustInputColumn = $matrix -> matrixColumnNumber;
+		//入力箇所
+		$matrixInputLocate = $mustInputRow."行 - ".$mustInputColumn."列";
+
+		//チェッカーボード作成
+		$matrixBordStr = "";
+		$matrixBordStr = '<CENTER> <table border="1">';
+		for($a = 0; $a < $MAX_CHKBORD_ROW; $a++){
+	    	$matrixBordStr = $matrixBordStr.'<tr>';
+	    	for($i = 0; $i< $MAX_CHKBORD_COLUMN; $i++){
+	    		$color = "";
+	    		$r = $a + 1;
+	    		$c = $i + 1;
+	    		if($r == $mustInputRow && $c == $mustInputColumn){
+	    			$color = "#ff0000";
+	    		}else{
+	    			$color = "#000000";
+	    		}
+	       		$matrixBordStr = $matrixBordStr.'<td bgcolor="'.$color.'" width="50" height="50"></td>';
+	    	}
+	    	$matrixBordStr = $matrixBordStr.'</tr>';
+		}
+		$matrixBordStr = $matrixBordStr.'</table> </CENTER>';
+		//
+		$assistMessage = "半角数字を入力して下さい.";
+		//残り入力回数.
+		$rest = $matrix -> inputMaxCount - $student -> getAttendee() -> getRequestcountJudgementMatrix();
+		$restMessage = "残り".$rest."回";
+
+		//隠し要素(javascriptで使用するために)
+		$hidden = "";
+		//出席ID
+		$attId = $student -> getAttendee() -> getAttendeeId();
+		$hidden = $hidden.'
+		<input type="hidden" id="ATT" value="'.$attId.'">';
+		//入力しなければならいな桁数
+		$digit = $matrix -> matrixDigitCount;
+		$hidden = $hidden.'
+		<input type="hidden" id="DIG" value="'.$digit.'">';
+		//マトリックスログID
+		$matrixLogId = $student -> getAttendee() -> getLastMatrixLogId();
+		$hidden = $hidden.'
+		<input type="hidden" id="MAT" value="'.$matrixLogId.'">';
+
 		return '<div data-role="page" id="SCREEN_CLOSED" data-theme="b">
 				'.hedder().'
 				<div data-role="content" style="text-align: center">
-					<p> 入力画面が入ります. </p>
+					<p>'.$matrixInputLocate.'<p>
+					'.$matrixBordStr.'
+					<p>'.$assistMessage.'<p>
+					<font class="text_judge_enter_chkbord_baule" color="#ff0000" vale="">'.$restMessage.'</font>
+					<input type="tel" maxlength="'.$matrix -> matrixDigitCount.'" id="FORM_ENTER_MATRIX_VALUE" value="" />
+					<input type="button" id="BTN-SEND-MATRIX-VALUE" data-inline="true" value=" 　　　OK　　　"></input>
 				</div>
-			</div>';
+			</div>'.$hidden;
 	}
 
 	/**
@@ -57,12 +118,17 @@
    	* 名札表示画面
    	* @parm namePlateClass 名札クラス
    	**/
-	function screenNamePlate($namePlateClass){
-		$studentId = $namePlateClass -> getStudentId();
-		$fullName = $namePlateClass -> getFullName();
-		$inputMatrixStatus = $namePlateClass -> getInputMatrixStatus();
+	function screenNamePlate($screenState){
+
+		$student = $screenState -> getStudent();
+		$studentId = $student -> getStudentId();
+		$fullName = $student -> getFullName();
+
+		$att = $student -> getAttendee();
+		//正解フラグ 1:正常 2:オーバ
+		$inputMatrixStatus = $att -> getResultInputMatrix();
 		$imageSrc = '';
-		if($inputMatrixStatus == $namePlateClass -> OVER_INPUT_LIMET){
+		if($inputMatrixStatus == $screenState -> OVER_INPUT_LIMET){
 			//入力制限をオーバーした.
 			//不正出席とみなします.
 			$imageSrc = '<img alt="illegal_attendance" src="../../../../tool/image/matrix/illegal_attendee.png">';

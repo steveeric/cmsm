@@ -1,10 +1,7 @@
 <?php
 
 	class NamePlate{
-		//入力制限内(正常に値を当てた)
-		public $IN_INPUT_LIMET = 1;
-		//入力制限オーバー
-		public $OVER_INPUT_LIMET = 2;
+
 
 		//学籍番号
 		private $studentId;

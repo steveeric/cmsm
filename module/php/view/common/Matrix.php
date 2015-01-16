@@ -11,9 +11,9 @@
 		//マトリックスID
 		public $matrixId;
 		//マトリックス枠の最大行数
-		public $matrixGridRowCount;
+		public $matrixBordRowCount;
 		//マトリックス枠の最大列数
-		public $matrixGridColumnCount;
+		public $matrixBordColumnCount;
 		//入力可能な最大回数
 		public $inputMaxCount;
 		//入力すべき行番号
@@ -39,25 +39,33 @@
    		* @parm totalColumnCount マトリックスの格子の列数
    		* @parm digitCount 入力桁数
    		**/
-   		public function setMatrixGrid($inputMaxCount,$totalRowCount,$totalColumnCount,$digitCount){
+   		public function setMatrixBord($inputMaxCount,$totalRowCount,$totalColumnCount,$digitCount){
    			$this -> inputMaxCount = $inputMaxCount;
-   			$this -> matrixGridRowCount = $totalRowCount;
-   			$this -> matrixGridColumnCount = $totalColumnCount;
+   			$this -> matrixBordRowCount = $totalRowCount;
+   			$this -> matrixBordColumnCount = $totalColumnCount;
    			$this -> matrixDigitCount = $digitCount;
    		}
 		/**
    		* createdate : 2015年1月15日
    		* setMatrixメソッド
    		* マトリックス情報をセットする.
+   		* @parm inputItem 入力すべきアイテム
    		* @parm rowNumber 入力すべき行番号
    		* @parm columnNumber 入力すべき列番号
-   		* @parm inputItem 入力すべきアイテム
    		**/
-   		public function setMatrix($rowNumber,$columnNumber,$inputItem){
+   		public function setMatrix($inputItem,$rowNumber,$columnNumber){
    			$this -> matrixRowNumber = $rowNumber;
    			$this -> matrixColumnNumber = $columnNumber;
    			$this -> matrixMustInputItem = $inputItem;
    		}
+         /*
+   		public function getMatrixId(){
+   			return $this -> matrixId;
+   		}
+   		public function getMatrixMustInputItem(){
+   			return $this -> matrixMustInputItem;
+   		}
+         */
 	}
 
 ?>

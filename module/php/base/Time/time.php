@@ -34,11 +34,15 @@ class Time{
 
 	function getNowDate(){
           return date('Y-m-d');
-        }	
-	
+        }
+
 	//詳しい現在の時間を返す
 	function getNowDetaileTime(){
 		return date("Y-m-d H:i:s");
+	}
+	//詳しい現在の時間を返す
+	function getNowStrTime(){
+		return date("ymdHis");
 	}
 }
 
