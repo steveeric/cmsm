@@ -12,14 +12,21 @@
 					<script type="text/javascript" src="matrix.js"></script>
 
 <?php
+
+	$randomNo = htmlspecialchars($_GET['r'], ENT_QUOTES, "utf-8");
+	$scheduleId = htmlspecialchars($_GET['s'], ENT_QUOTES, "utf-8");
+
+	if(is_null($randomNo) || is_null($scheduleId)){
+		exit ("エラーが発生しました.");
+	}
+
 	//マトリックスモジュール読み込み
 	include_once(dirname(__FILE__).'../../../../../module/php/view/matrix/matrix.php');
 
 	//マトリックスインスタンス
 	$matrixModule = new MatrixModule();
 
-	//X12009
-	$matrixModule -> setItem("0001033001KX020140005","48457296612673357411");
+	$matrixModule -> setItem($scheduleId,$randomNo);
 
 	$screenState = $matrixModule -> getScreenState();
 	$screenNumber = $screenState -> getScreenNumber();
