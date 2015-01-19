@@ -47,7 +47,7 @@
    				$firstSQL = $firstSQL . $str;
    			}
 
-   			$secondSQL = "WHERE `syllabus_mst`.`SCHEDULE_ID` = '".$scheduleId."' ";
+   			$secondSQL = "WHERE `SCHEDULE_ID` = '".$scheduleId."' ";
 
    			$sql = $firstSQL.$secondSQL;
 
