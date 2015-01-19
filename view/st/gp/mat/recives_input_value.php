@@ -44,7 +44,7 @@
 	$processInputValue = new ProcessInputValue($con);
 	$processInputValue -> setItem($attendeeId,$matrixLogId,$inputValue);
 
-	$str = "Location: http://".$domain -> getDomain()."/cmsm/view/st/gp/mat/m.php?r=".$randomNo."&s=".$scheduleId;
+	$str = "Location: http://".$domain -> getDomain()."/cmsm/view/st/gp/mat/mat.php?r=".$randomNo."&s=".$scheduleId;
 	header( "HTTP/1.1 301 Moved Permanently" );
 	header( $str );
 ?>

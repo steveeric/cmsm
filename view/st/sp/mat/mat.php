@@ -9,8 +9,7 @@
 					<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
 					<script
 						src="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.js"></script>
-					<script type="text/javascript" src="matrix.js"></script>
-
+					<link rel="stylesheet" type="text/css" href="matrix.css" />
 <?php
 
 	$randomNo = htmlspecialchars($_GET['r'], ENT_QUOTES, "utf-8");
@@ -106,7 +105,9 @@
 		$hidden = $hidden.'
 		<input type="hidden" id="MAT" value="'.$matrixLogId.'">';
 
-		return '<div data-role="page" id="SCREEN_CLOSED" data-theme="b">
+		return '					<script type="text/javascript" src="matrix.js"></script>
+
+				<div data-role="page" id="SCREEN_CLOSED" data-theme="b">
 				'.hedder().'
 				<div data-role="content" style="text-align: center">
 					<p>'.$matrixInputLocate.'<p>
@@ -138,13 +139,13 @@
 		if($inputMatrixStatus == $screenState -> OVER_INPUT_LIMET){
 			//入力制限をオーバーした.
 			//不正出席とみなします.
-			$imageSrc = '<img alt="illegal_attendance" src="../../../../tool/image/matrix/illegal_attendee.png">';
+			$imageSrc = '<img alt="illegal_attendance" src="../../../../tool/image/matrix/illegal_allegations.png">';
 		}
 			return '<div data-role="page" id="SCREEN_CLOSED" data-theme="b">
 				'.hedder().'
 				<div data-role="content" style="text-align: center">
-					<p>'.$studentId.'</p>
-					<p>'.$fullName.'</p>
+					<p class="str" >'.$studentId.'</p>
+					<p class="str" >'.$fullName.'</p>
 					'.$imageSrc.'
 				</div>
 			</div>';
@@ -159,7 +160,7 @@
 		return '<div data-role="page" id="SCREEN_CLOSED" data-theme="b">
 				'.hedder().'
 				<div data-role="content" style="text-align: center">
-					<p>出席が確認できなかったので参加できません.</p>
+					<p class="str" >出席が確認できなかったので参加できません.</p>
 				</div>
 			</div>';
 	}
@@ -173,7 +174,7 @@
 		return '<div data-role="page" id="SCREEN_CLOSED" data-theme="b">
 				'.hedder().'
 				<div data-role="content" style="text-align: center">
-					<p>入力を締め切りました</p>
+					<p class="str" >入力を締め切りました</p>
 				</div>
 			</div>';
 	}

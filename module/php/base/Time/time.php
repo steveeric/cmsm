@@ -24,6 +24,9 @@ class Time{
 	public function getNowTime(){
 		return date('Y-m-d H:i:s');
 	}
+	public function getNowDateTime(){
+		return date('Y-m-d H:i:s');
+	}
 	public function getTimeTableIdTime(){
 		return date('H:i:s');
 	}

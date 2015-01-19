@@ -23,21 +23,21 @@ if ($l != 20) {
 } else {
 	/* 乱数を元に現在の画面情報を取得する */
 	/*$contentResult = $con -> getNowScreenContent($randomNo);*/
-	
+
 	/*テスト時にはKEYを変更してください.*/
 	$key = $p->distributPhoneKey ();
         //$key = 0;
-	
+
 	/* 現在のアクセス時間を取得する */
 	$nowTime = $t->getNowDetaileTime ();
-	
+
 	/* アクセス時間を記録 */
 	$recordSQL = "UPDATE `MOBILE_SCREEN` SET LAST_ACCESS_TIME = '" . $nowTime . "',`SMART_PHONE_FLAG` = '" . $key . "',USER_AGENT='" . $ua . "'  WHERE `RANDOM_NO` = '" . $randomNo . "';";
 	$con->execute ( $recordSQL );
-	
+
 	/* アクセス時間を取得 */
 	$tt = $t->getTimeTableIdTime ();
-	
+
 	/* 現在が */
 	$timeZoneSQL = "SELECT MIN( `CLASS_START_TIME` ) , MAX( `CLASS_END_TIME` ) FROM `TIMETABLE_MST` ";
 	$timeZoneResult = $con->query ( $timeZoneSQL );
@@ -61,11 +61,11 @@ if ($l != 20) {
 		/**
 		 * アクセス時間と乱数を元に現在履修している科目があるかを割り出す*
 		 */
-		$sql = "SELECT S.SCHEDULE_ID, S.ACTION_ID, S.USE_ESL,R.DM_BARCODE_ID, SU.SUBJECT_NAME ,C.COURSE_REGISTRATION_PERMIT 
-			FROM `COURSE_REGISTRATION_MST` C, REGISTER_MST R, SYLLABUS_MST S,SUBJECT_MST SU 
+		$sql = "SELECT S.SCHEDULE_ID, S.ACTION_ID, S.USE_ESL,R.DM_BARCODE_ID, SU.SUBJECT_NAME ,C.COURSE_REGISTRATION_PERMIT
+			FROM `COURSE_REGISTRATION_MST` C, REGISTER_MST R, SYLLABUS_MST S,SUBJECT_MST SU
 			WHERE C.STUDENT_ID = R.STUDENT_ID
-			AND C.SUBJECT_ID = S.SUBJECT_ID 
-			AND S.SUBJECT_ID =SU.SUBJECT_ID 
+			AND C.SUBJECT_ID = S.SUBJECT_ID
+			AND S.SUBJECT_ID =SU.SUBJECT_ID
 			AND S.TIMETABLE_ID = '" . $timeTableId . "'
 			AND S.YEAR = '" . $y . "'
 			AND S.MONTH = '" . $m . "'
@@ -93,6 +93,11 @@ if ($l != 20) {
 					$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'sels',SCHEDULE_ID = '" . $scheduleId . "'
 					WHERE `RANDOM_NO` = '" . $randomNo . "' ";
 					$upresult = $con->execute ( $upsql );
+				} else if($aId == 4){
+					/*マトリックス*/
+					$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'mat',SCHEDULE_ID = '" . $scheduleId . "'
+					WHERE `RANDOM_NO` = '" . $randomNo . "' ";
+					$upresult = $con->execute ( $upsql );
 				} else if ($aId == 9) {
 					/* グルーピング */
 					$upsql = "UPDATE `MOBILE_SCREEN` SET `NOW_SCREEN_CONTENT_ID` = 'gp',SCHEDULE_ID = '" . $scheduleId . "'
@@ -104,7 +109,7 @@ if ($l != 20) {
 					/* 端末から出席開始 */
 					$upresult = $con->execute ( $upsql );
 				}
-					
+
 				/* 表示する画面コンテンツを取得する */
 				$contentResult = $con->getNowScreenContentDetaile ( $nowTime, $randomNo );
 				if (count ( $contentResult ) == 1) {

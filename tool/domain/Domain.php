@@ -1,7 +1,7 @@
 <?php
 
 class Domain{
-	private $domein = "localhost";
+	private $domein = "192.168.51.181";
 	/**
 	* コンストラクタ
  	**/

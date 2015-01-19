@@ -137,6 +137,9 @@ $student = $screenState -> getStudent();
 		$studentId = $student -> getStudentId();
 		$fullName = $student -> getFullName();
 
+		$studentId = "J07011";
+		$fullName = "伊藤翔太";
+
 		$att = $student -> getAttendee();
 		//正解フラグ 1:正常 2:オーバ
 		$inputMatrixStatus = $att -> getResultInputMatrix();

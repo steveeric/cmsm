@@ -85,11 +85,11 @@ for($i=0;$i<count($seatBlockResult);$i++){
 
   //
   //var_dump($seatBlockDeteileCountResult);
-  
+
   $sql = "SELECT S.SEAT_ID, S.SEAT_ROW, S.SEAT_COLUMN "
          ."FROM `SEAT_MST` S, SEAT_BLOCK_MST B "
          ."WHERE S.SEAT_BLOCK_ID = B.SEAT_BLOCK_ID "
-         ."AND S.SEAT_BLOCK_ID =".$seatBlockId." " 
+         ."AND S.SEAT_BLOCK_ID =".$seatBlockId." "
          ."ORDER BY `S`.`SEAT_ROW` , S.SEAT_COLUMN ASC ";
   $seatInBlockResult = $con -> query($sql);
   $seat = array();
@@ -97,7 +97,7 @@ for($i=0;$i<count($seatBlockResult);$i++){
     $seatId = $seatInBlockResult[$j]["SEAT_ID"];
     $row = $seatInBlockResult[$j]["SEAT_ROW"];
     $column = $seatInBlockResult[$j]["SEAT_COLUMN"];
-   
+
     $attend = null;
     if(count($attendee)>0){
     for($k=0;$k<count($attendee);$k++){
@@ -106,14 +106,14 @@ for($i=0;$i<count($seatBlockResult);$i++){
         //出席者あり
         //$attend = $attendee[$k];
         $gp = $attendee[$k]["GROUP"];
-        $attend = array('STUDENT_ID' => $attendee[$k]["STUDENT_ID"], 
+        $attend = array('STUDENT_ID' => $attendee[$k]["STUDENT_ID"],
                         'FULL_NAME' => $attendee[$k]["FULL_NAME"],
                         'SEAT_REVISION'=>$attendee[$k]["SEAT_REVISION"],
                         'GROUP' => $gp);
       }
-    }   
+    }
 }
-    
+
     $absent = null;
     if($attend == null){
       //なぜいないかを調査する
@@ -141,16 +141,16 @@ for($i=0;$i<count($seatBlockResult);$i++){
       }
      }
     }
- 
-    $seat[] = array('SEAT_ID' => $seatId, 
-                    'SEAT_ROW' => $row, 
+
+    $seat[] = array('SEAT_ID' => $seatId,
+                    'SEAT_ROW' => $row,
                     'SEAT_COLUMN' => $column,
                     'ATTENDEE' => $attend,
                     'ABSENTEE' => $absent);
-  }  
+  }
 
   //var_dump($seatInBlockResult);
- 
+
   $seatBlock[] = array('SEAT_BLOCK_ID' => $seatBlockId,'SEAT_BLOCK_NAME' => $seatBlockName,'IN_SEAT_COUNT' => $seatBlockDeteileJson, 'SEAT' =>$seat );
 
 }
