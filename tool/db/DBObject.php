@@ -5,9 +5,8 @@ class DBObject{
 	private $ip = '127.0.0.1';
 	private $port='3306';
 	private $db_name='cms_mobile';
-        //private $db_name='test_cms_mobile';
-	private $user='root';
-	private $pass_word='';
+	private $user='shota';
+	private $pass_word='cewk4193';
 
 	public function getHost(){
 		return $this -> ip;
